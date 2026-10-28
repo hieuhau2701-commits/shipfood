@@ -23,7 +23,7 @@
         <h1 class="text-xl font-bold tracking-wide">ShipFood System</h1>
       </div>
       <div class="flex items-center space-x-4" id="headerAuthArea">
-        <!-- JS injects auth state here -->
+        <!-- JS render nút Đăng Nhập tại đây -->
       </div>
     </div>
   </header>
@@ -31,9 +31,14 @@
   <!-- Main Content Area -->
   <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
 
-    <!-- ================= 1. GIAO DIỆN KHÁCH HÀNG ================= -->
+    <!-- Thông báo nếu chưa bật Firebase Rules -->
+    <div id="permissionWarning" class="hidden bg-amber-100 border-l-4 border-amber-500 text-amber-800 p-4 rounded mb-6 text-sm">
+      <p class="font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Chưa mở quyền truy cập Firestore Database!</p>
+      <p>Vui lòng vào <b>Firebase Console -> Firestore Database -> Rules</b> và đổi <code>allow read, write: if true;</code> sau đó bấm <b>Publish</b> để hiển thị đầy đủ dữ liệu từ Server.</p>
+    </div>
+
+    <!-- 1. GIAO DIỆN KHÁCH HÀNG -->
     <div id="customerView" class="space-y-6">
-      <!-- Restaurant List Sub-view -->
       <section id="restaurantListView" class="space-y-6">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div>
@@ -46,30 +51,29 @@
           </div>
         </div>
         <div id="restaurantGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Rendered via JS -->
+          <!-- Render danh sách quán -->
         </div>
       </section>
 
-      <!-- Restaurant Detail Sub-view -->
       <section id="restaurantDetailView" class="hidden space-y-6">
         <button onclick="window.showRestaurantList()" class="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium text-sm transition">
           <i class="fa-solid fa-arrow-left mr-2"></i> Quay lại danh sách quán
         </button>
         <div id="restaurantHeaderCard" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <!-- Rendered via JS -->
+          <!-- Render thông tin quán chi tiết -->
         </div>
         <div>
           <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
             <i class="fa-solid fa-book-open text-orange-500 mr-2"></i> Thực Đơn Món Ăn
           </h3>
           <div id="menuGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Rendered via JS -->
+            <!-- Render menu -->
           </div>
         </div>
       </section>
     </div>
 
-    <!-- ================= 2. GIAO DIỆN ADMIN (QUẢN TRỊ) ================= -->
+    <!-- 2. GIAO DIỆN ADMIN (QUẢN TRỊ) -->
     <div id="adminView" class="hidden space-y-6">
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
@@ -84,7 +88,7 @@
         </div>
       </div>
 
-      <!-- Tab 1: Cấu hình thông tin quán và thêm món -->
+      <!-- Tab Thông tin & Menu -->
       <div id="adminTabInfo" class="space-y-6">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
           <h3 class="font-bold text-lg text-slate-800 border-b pb-2"><i class="fa-solid fa-store text-orange-500 mr-2"></i> Cập Nhật Thông Tin Quán</h3>
@@ -119,19 +123,16 @@
           </form>
         </div>
 
-        <!-- Quản lý món ăn -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6">
-          <div class="flex justify-between items-center border-b pb-2">
-            <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-bowl-food text-orange-500 mr-2"></i> Thêm Món Ăn Mới Vào Menu</h3>
-          </div>
+          <h3 class="font-bold text-lg text-slate-800 border-b pb-2"><i class="fa-solid fa-bowl-food text-orange-500 mr-2"></i> Thêm Món Ăn Mới</h3>
           <form id="addMenuItemForm" onsubmit="window.handleAddMenuItem(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Tên Món Ăn</label>
-              <input type="text" id="menuItemName" required class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500" placeholder="Cơm sườn đặc biệt">
+              <input type="text" id="menuItemName" required class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500" placeholder="Cơm sườn nướng">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Giá Tiền (VNĐ)</label>
-              <input type="number" id="menuItemPrice" required class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500" placeholder="50000">
+              <input type="number" id="menuItemPrice" required class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500" placeholder="45000">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Link Ảnh Món (URL)</label>
@@ -139,30 +140,30 @@
             </div>
             <div class="md:col-span-2">
               <label class="block text-xs font-semibold text-slate-600 mb-1">Mô Tả Món Ăn</label>
-              <input type="text" id="menuItemDesc" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500" placeholder="Thêm trứng ốp la, canh súp...">
+              <input type="text" id="menuItemDesc" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500" placeholder="Kèm súp và dưa leo...">
             </div>
             <div>
-              <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-sm transition">Thêm Món Vào Menu</button>
+              <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-sm transition">Thêm Món</button>
             </div>
           </form>
 
           <div class="mt-6">
-            <h4 class="font-bold text-sm text-slate-700 mb-3">Danh Sách Món Hiện Tại Của Quán</h4>
+            <h4 class="font-bold text-sm text-slate-700 mb-3">Danh Sách Món Hiện Tại</h4>
             <div id="adminMenuList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Rendered via JS -->
+              <!-- Render danh sách món admin -->
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Tab 2: Quản lý đơn hàng realtime -->
+      <!-- Tab Đơn Hàng -->
       <div id="adminTabOrders" class="hidden space-y-4">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
-            <i class="fa-solid fa-bell text-orange-500 mr-2"></i> Danh Sách Đơn Hàng Từ Khách Hàng
+            <i class="fa-solid fa-bell text-orange-500 mr-2"></i> Danh Sách Đơn Hàng Tức Thời
           </h3>
           <div id="adminOrdersContainer" class="space-y-4">
-            <p class="text-sm text-slate-400 text-center py-8">Đang tải danh sách đơn hàng...</p>
+            <p class="text-sm text-slate-400 text-center py-8">Chưa có đơn hàng nào...</p>
           </div>
         </div>
       </div>
@@ -170,13 +171,13 @@
 
   </main>
 
-  <!-- Cart Floating Button (Chỉ hiện ở giao diện Khách) -->
+  <!-- Cart Floating Button -->
   <button id="cartFab" onclick="window.toggleCartModal()" class="fixed bottom-6 right-6 bg-orange-600 hover:bg-orange-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-105 z-40">
     <i class="fa-solid fa-basket-shopping text-2xl"></i>
     <span id="cartCountBadge" class="cart-badge bg-yellow-400 text-slate-900 font-bold text-xs px-2 py-0.5 rounded-full border-2 border-white">0</span>
   </button>
 
-  <!-- Cart / Checkout Modal -->
+  <!-- Cart Modal -->
   <div id="cartModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex justify-end">
     <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
       <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
@@ -187,9 +188,7 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-        <!-- Cart items -->
-      </div>
+      <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"></div>
       <div class="p-4 border-t bg-slate-50 space-y-4">
         <div class="flex justify-between items-center text-base font-bold">
           <span>Tổng thành tiền:</span>
@@ -200,7 +199,7 @@
             <label class="block text-xs font-semibold text-slate-600 mb-1">Địa chỉ giao hàng *</label>
             <div class="flex gap-2">
               <input type="text" id="orderAddress" placeholder="Nhập địa chỉ hoặc dùng GPS..." class="flex-1 text-sm p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
-              <button onclick="window.getLocation()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1" title="Lấy vị trí GPS">
+              <button onclick="window.getLocation()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1">
                 <i class="fa-solid fa-location-crosshairs text-orange-600"></i> GPS
               </button>
             </div>
@@ -208,10 +207,10 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Ghi chú đơn hàng</label>
-            <textarea id="orderNote" rows="2" placeholder="Ví dụ: Không hành, nhiều cơm..." class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
+            <textarea id="orderNote" rows="2" placeholder="Ví dụ: Không cay, lấy thêm nước sốt..." class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
           </div>
         </div>
-        <button onclick="window.submitOrder()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-orange-600/30 flex justify-center items-center gap-2">
+        <button onclick="window.submitOrder()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-xl transition shadow-lg flex justify-center items-center gap-2">
           <i class="fa-solid fa-paper-plane"></i> Xác Nhận Đặt Hàng
         </button>
       </div>
@@ -224,7 +223,7 @@
       <button onclick="window.toggleAuthModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
         <i class="fa-solid fa-xmark text-xl"></i>
       </button>
-      <h3 id="authModalTitle" class="text-xl font-bold text-slate-800 mb-4 text-center">Đăng Nhập Khách Hàng / Quản Trị</h3>
+      <h3 id="authModalTitle" class="text-xl font-bold text-slate-800 mb-4 text-center">Đăng Nhập Khách Hàng / Admin</h3>
       <div class="flex border-b mb-4">
         <button id="tabAuthLogin" onclick="window.switchAuthTab('login')" class="flex-1 py-2 font-semibold text-orange-600 border-b-2 border-orange-600">Đăng Nhập</button>
         <button id="tabAuthRegister" onclick="window.switchAuthTab('register')" class="flex-1 py-2 font-semibold text-slate-400 border-b-2 border-transparent">Đăng Ký Khách Mới</button>
@@ -236,7 +235,7 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
-          <input type="email" id="authEmail" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none" placeholder="admin@firebase.com hoặc khách hàng">
+          <input type="email" id="authEmail" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none" placeholder="admin@gmail.com hoặc email khách">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Mật khẩu</label>
@@ -255,10 +254,9 @@
       signOut, onAuthStateChanged, updateProfile 
     } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
     import { 
-      getFirestore, collection, addDoc, doc, setDoc, getDoc, updateData, deleteDoc, onSnapshot, serverTimestamp, query, orderBy 
+      getFirestore, collection, addDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, query, orderBy 
     } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
-    // Cấu hình Firebase của bạn
     const firebaseConfig = {
       apiKey: "AIzaSyCJpjeC34J7njryA9rVdrSz-c0B8UD1A64",
       authDomain: "shipfood-e24f6.firebaseapp.com",
@@ -274,42 +272,38 @@
     const db = getFirestore(app);
 
     let currentUser = null;
-    let userRole = 'customer'; // 'admin' hoặc 'customer'
+    let userRole = 'customer';
     let authMode = 'login';
     let cart = [];
-    let restaurants = [];
+    let restaurants = [
+      {
+        id: "res_demo",
+        name: "Quán Ăn Mẫu ShipFood",
+        phone: "0909123456",
+        address: "123 Đường Nguyễn Trãi, TP. Hà Nội",
+        hours: "08:00 - 22:00 Hàng ngày",
+        description: "Quán ăn mẫu phục vụ các món ăn truyền thống.",
+        image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
+        menu: [
+          { id: "m1", name: "Cơm Sườn Mật Ong", price: 45000, desc: "Sườn nướng béo ngậy kèm súp", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300" },
+          { id: "m2", name: "Phở Bò Đặc Biệt", price: 55000, desc: "Nước dùng ninh từ xương 24h", image: "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=300" }
+        ]
+      }
+    ];
     let activeRestaurant = null;
     let unsubOrders = null;
 
-    // 1. Theo dõi trạng thái đăng nhập & Phân quyền Admin / Khách
-    onAuthStateChanged(auth, async (user) => {
-      currentUser = user;
-      if (user) {
-        // Kiểm tra xem tài khoản này có tồn tại trong collection 'users' (tài khoản tạo từ web) không?
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userDocRef);
-
-        if (userSnap.exists() && userSnap.data().role === 'customer') {
-          userRole = 'customer';
-        } else {
-          // Nếu không đăng ký qua web -> Tài khoản tạo trực tiếp trên Firebase Console -> Là ADMIN
-          userRole = 'admin';
-        }
-      } else {
-        userRole = 'customer';
-      }
-      updateUIHeader();
-      loadRestaurantsFromFirebase();
-    });
-
-    function updateUIHeader() {
+    // Đảm bảo nút Header luôn luôn vẽ thành công
+    window.updateUIHeader = function() {
       const container = document.getElementById('headerAuthArea');
       const cartFab = document.getElementById('cartFab');
       const customerView = document.getElementById('customerView');
       const adminView = document.getElementById('adminView');
 
+      if (!container) return;
+
       if (currentUser) {
-        const name = currentUser.displayName || currentUser.email.split('@')[0];
+        const name = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Người dùng');
         const roleBadge = userRole === 'admin' 
           ? '<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold ml-1">Admin Quán</span>' 
           : '<span class="bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-bold ml-1">Khách Hàng</span>';
@@ -345,54 +339,62 @@
         customerView.classList.remove('hidden');
         cartFab.classList.remove('hidden');
       }
-    }
+    };
 
-    // 2. Tải danh sách quán từ Firestore
-    function loadRestaurantsFromFirebase() {
-      onSnapshot(collection(db, "restaurants"), (snapshot) => {
-        restaurants = [];
-        snapshot.forEach((docSnap) => {
-          restaurants.push({ id: docSnap.id, ...docSnap.data() });
-        });
-
-        // Nếu chưa có quán nào trên Firestore, khởi tạo mặc định 1 quán cho admin dễ quản lý
-        if (restaurants.length === 0) {
-          createDefaultRestaurant();
-        } else {
-          renderRestaurants();
-          if (userRole === 'admin') {
-            loadAdminRestaurantData();
+    // Auth State Watcher
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userDocRef);
+          if (userSnap.exists() && userSnap.data().role === 'customer') {
+            userRole = 'customer';
+          } else {
+            userRole = 'admin';
           }
+        } catch (e) {
+          console.warn("Firestore error user lookup:", e);
+          userRole = 'admin'; // Mặc định nếu không check được thì gán Admin
         }
-      }, (err) => {
-        console.error("Lỗi tải quán:", err);
-      });
+      } else {
+        userRole = 'customer';
+      }
+      window.updateUIHeader();
+      loadRestaurantsFromFirebase();
+    });
+
+    function loadRestaurantsFromFirebase() {
+      try {
+        onSnapshot(collection(db, "restaurants"), (snapshot) => {
+          document.getElementById('permissionWarning').classList.add('hidden');
+          let list = [];
+          snapshot.forEach((docSnap) => {
+            list.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          if (list.length > 0) {
+            restaurants = list;
+          }
+          renderRestaurants();
+          if (userRole === 'admin') loadAdminRestaurantData();
+        }, (err) => {
+          console.warn("Lỗi Firestore Permission:", err);
+          document.getElementById('permissionWarning').classList.remove('hidden');
+          renderRestaurants();
+        });
+      } catch (e) {
+        renderRestaurants();
+      }
     }
 
-    async function createDefaultRestaurant() {
-      const defaultRes = {
-        name: "Quán Cơm Ngon Online",
-        phone: "0909123456",
-        address: "123 Đường Chính, TP. Hà Nội",
-        hours: "08:00 - 21:00",
-        description: "Chuyên phục vụ các món ăn ngon đậm đà hương vị truyền thống.",
-        image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop",
-        menu: [
-          { id: "m1", name: "Cơm Sườn Nướng", price: 45000, desc: "Sườn mềm thơm ngon", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300" }
-        ]
-      };
-      await addDoc(collection(db, "restaurants"), defaultRes);
-    }
-
-    // Giao diện Khách: Render danh sách quán
     window.renderRestaurants = function() {
       const grid = document.getElementById('restaurantGrid');
       if (!grid) return;
       grid.innerHTML = restaurants.map(res => `
         <div onclick="window.selectRestaurant('${res.id}')" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition cursor-pointer flex flex-col group">
           <div class="h-44 overflow-hidden relative">
-            <img src="${res.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">Đang Mở Cửa</span>
+            <img src="${res.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">Mở Cửa</span>
           </div>
           <div class="p-5 flex-1 flex flex-col justify-between">
             <div>
@@ -401,7 +403,7 @@
               <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-clock text-orange-500 mr-1"></i>${res.hours}</p>
             </div>
             <div class="mt-4 pt-3 border-t flex justify-between items-center text-xs font-semibold text-orange-600">
-              <span>Xem Menu & Chọn Món</span>
+              <span>Xem Menu & Đặt Hàng</span>
               <i class="fa-solid fa-chevron-right"></i>
             </div>
           </div>
@@ -427,7 +429,7 @@
     };
 
     window.selectRestaurant = function(id) {
-      activeRestaurant = restaurants.find(r => r.id === id);
+      activeRestaurant = restaurants.find(r => r.id === id) || restaurants[0];
       if (!activeRestaurant) return;
 
       document.getElementById('restaurantHeaderCard').innerHTML = `
@@ -438,7 +440,6 @@
             <p class="text-sm text-slate-600"><i class="fa-solid fa-location-dot text-orange-500 mr-2"></i>${activeRestaurant.address}</p>
             <p class="text-sm text-slate-600"><i class="fa-solid fa-phone text-orange-500 mr-2"></i>${activeRestaurant.phone}</p>
             <p class="text-sm text-slate-600"><i class="fa-solid fa-clock text-orange-500 mr-2"></i>${activeRestaurant.hours}</p>
-            <p class="text-xs text-slate-500">${activeRestaurant.description || ''}</p>
           </div>
         </div>
       `;
@@ -448,7 +449,7 @@
       menuGrid.innerHTML = menu.map(item => `
         <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm flex flex-col justify-between hover:shadow-md transition">
           <div class="flex gap-4">
-            <img src="${item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300'}" class="w-20 h-20 object-cover rounded-lg">
+            <img src="${item.image}" class="w-20 h-20 object-cover rounded-lg">
             <div>
               <h4 class="font-bold text-slate-800 text-sm">${item.name}</h4>
               <p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.desc || ''}</p>
@@ -476,21 +477,17 @@
       window.showRestaurantList();
     };
 
-    // Giỏ hàng & Đặt hàng
+    // Giỏ hàng
     window.addToCart = function(itemId) {
+      if (!activeRestaurant) return;
       const item = activeRestaurant.menu.find(m => m.id === itemId);
       if (!item) return;
 
-      const existing = cart.find(c => c.id === itemId && c.restaurantId === activeRestaurant.id);
+      const existing = cart.find(c => c.id === itemId);
       if (existing) {
         existing.quantity += 1;
       } else {
-        cart.push({
-          ...item,
-          restaurantId: activeRestaurant.id,
-          restaurantName: activeRestaurant.name,
-          quantity: 1
-        });
+        cart.push({ ...item, quantity: 1 });
       }
       updateCartUI();
     };
@@ -535,45 +532,41 @@
       st.innerText = "Đang định vị...";
       navigator.geolocation.getCurrentPosition(
         pos => {
-          document.getElementById('orderAddress').value = `Tọa độ GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-          st.innerText = "Lấy GPS thành công!";
+          document.getElementById('orderAddress').value = `GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+          st.innerText = "Thành công!";
         },
-        () => { st.innerText = "Không thể lấy vị trí GPS."; }
+        () => { st.innerText = "Không thể lấy vị trí."; }
       );
     };
 
     window.submitOrder = async function() {
-      if (!currentUser) { alert("Vui lòng đăng nhập để đặt hàng!"); window.toggleAuthModal(); return; }
+      if (!currentUser) { alert("Vui lòng đăng nhập!"); window.toggleAuthModal(); return; }
       if (cart.length === 0) { alert("Giỏ hàng trống!"); return; }
       const address = document.getElementById('orderAddress').value.trim();
-      if (!address) { alert("Vui lòng nhập địa chỉ nhận hàng!"); return; }
+      if (!address) { alert("Vui lòng nhập địa chỉ!"); return; }
 
       const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-      const orderData = {
-        userId: currentUser.uid,
-        userName: currentUser.displayName || currentUser.email,
-        address: address,
-        note: document.getElementById('orderNote').value.trim(),
-        items: cart,
-        totalAmount: total,
-        status: "Đang chờ xử lý",
-        createdAt: serverTimestamp()
-      };
-
       try {
-        await addDoc(collection(db, "orders"), orderData);
-        alert("Đặt hàng thành công! Đã gửi thông báo đến Admin.");
+        await addDoc(collection(db, "orders"), {
+          userId: currentUser.uid,
+          userName: currentUser.displayName || currentUser.email,
+          address: address,
+          note: document.getElementById('orderNote').value.trim(),
+          items: cart,
+          totalAmount: total,
+          status: "Đang chờ xử lý",
+          createdAt: serverTimestamp()
+        });
+        alert("Đặt hàng thành công!");
         cart = [];
         updateCartUI();
         window.toggleCartModal();
-        document.getElementById('orderAddress').value = '';
-        document.getElementById('orderNote').value = '';
       } catch (err) {
         alert("Lỗi đặt hàng: " + err.message);
       }
     };
 
-    // ================= LOGIC ADMIN =================
+    // Logic Admin Dashboard
     function initAdminDashboard() {
       loadAdminRestaurantData();
       listenAdminOrders();
@@ -581,21 +574,20 @@
 
     function loadAdminRestaurantData() {
       if (restaurants.length === 0) return;
-      const res = restaurants[0]; // Lấy quán đầu tiên để admin quản lý
+      const res = restaurants[0];
       document.getElementById('adminResName').value = res.name || '';
       document.getElementById('adminResPhone').value = res.phone || '';
       document.getElementById('adminResAddress').value = res.address || '';
       document.getElementById('adminResHours').value = res.hours || '';
       document.getElementById('adminResImage').value = res.image || '';
       document.getElementById('adminResDesc').value = res.description || '';
-
       renderAdminMenu(res.menu || [], res.id);
     }
 
     function renderAdminMenu(menu, resId) {
       const list = document.getElementById('adminMenuList');
       if (!list) return;
-      list.innerHTML = menu.map((item, idx) => `
+      list.innerHTML = menu.map(item => `
         <div class="flex items-center justify-between p-3 border rounded-lg bg-slate-50">
           <div class="flex items-center gap-3">
             <img src="${item.image}" class="w-12 h-12 object-cover rounded">
@@ -611,21 +603,19 @@
 
     window.handleSaveRestaurantConfig = async function(e) {
       e.preventDefault();
-      if (restaurants.length === 0) return;
-      const resId = restaurants[0].id;
-
+      const resId = restaurants[0]?.id || "res_demo";
       const updatedData = {
         name: document.getElementById('adminResName').value,
         phone: document.getElementById('adminResPhone').value,
         address: document.getElementById('adminResAddress').value,
         hours: document.getElementById('adminResHours').value,
         image: document.getElementById('adminResImage').value,
-        description: document.getElementById('adminResDesc').value
+        description: document.getElementById('adminResDesc').value,
+        menu: restaurants[0]?.menu || []
       };
 
       try {
-        const docRef = doc(db, "restaurants", resId);
-        await setDoc(docRef, { ...restaurants[0], ...updatedData });
+        await setDoc(doc(db, "restaurants", resId), updatedData);
         alert("Cập nhật thông tin quán thành công!");
       } catch (err) {
         alert("Lỗi cập nhật: " + err.message);
@@ -634,9 +624,8 @@
 
     window.handleAddMenuItem = async function(e) {
       e.preventDefault();
-      if (restaurants.length === 0) return;
-      const res = restaurants[0];
-
+      const res = restaurants[0] || {};
+      const resId = res.id || "res_demo";
       const newItem = {
         id: 'm_' + Date.now(),
         name: document.getElementById('menuItemName').value,
@@ -644,13 +633,11 @@
         image: document.getElementById('menuItemImage').value,
         desc: document.getElementById('menuItemDesc').value
       };
-
-      const currentMenu = res.menu || [];
-      currentMenu.push(newItem);
+      const menu = res.menu || [];
+      menu.push(newItem);
 
       try {
-        const docRef = doc(db, "restaurants", res.id);
-        await setDoc(docRef, { ...res, menu: currentMenu });
+        await setDoc(doc(db, "restaurants", resId), { ...res, menu });
         alert("Thêm món ăn thành công!");
         document.getElementById('addMenuItemForm').reset();
       } catch (err) {
@@ -662,11 +649,9 @@
       if (!confirm("Bạn có chắc muốn xóa món này?")) return;
       const res = restaurants.find(r => r.id === resId);
       if (!res) return;
-
       const updatedMenu = (res.menu || []).filter(m => m.id !== itemId);
       try {
-        const docRef = doc(db, "restaurants", resId);
-        await setDoc(docRef, { ...res, menu: updatedMenu });
+        await setDoc(doc(db, "restaurants", resId), { ...res, menu: updatedMenu });
       } catch (err) {
         alert("Lỗi xóa món: " + err.message);
       }
@@ -693,49 +678,52 @@
 
     function listenAdminOrders() {
       if (unsubOrders) unsubOrders();
-      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-      unsubOrders = onSnapshot(q, (snapshot) => {
-        const container = document.getElementById('adminOrdersContainer');
-        const badge = document.getElementById('orderNotificationBadge');
-        let orders = [];
-        snapshot.forEach(docSnap => orders.push({ id: docSnap.id, ...docSnap.data() }));
+      try {
+        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        unsubOrders = onSnapshot(q, (snapshot) => {
+          const container = document.getElementById('adminOrdersContainer');
+          const badge = document.getElementById('orderNotificationBadge');
+          let orders = [];
+          snapshot.forEach(docSnap => orders.push({ id: docSnap.id, ...docSnap.data() }));
 
-        if (orders.length > 0) {
-          badge.innerText = orders.length;
-          badge.classList.remove('hidden');
-        } else {
-          badge.classList.add('hidden');
-        }
+          if (orders.length > 0) {
+            badge.innerText = orders.length;
+            badge.classList.remove('hidden');
+          } else {
+            badge.classList.add('hidden');
+          }
 
-        if (orders.length === 0) {
-          container.innerHTML = `<p class="text-sm text-slate-400 text-center py-8">Chưa có đơn hàng nào.</p>`;
-          return;
-        }
+          if (orders.length === 0) {
+            container.innerHTML = `<p class="text-sm text-slate-400 text-center py-8">Chưa có đơn hàng nào.</p>`;
+            return;
+          }
 
-        container.innerHTML = orders.map(ord => `
-          <div class="border rounded-xl p-4 bg-slate-50 space-y-3">
-            <div class="flex justify-between items-center border-b pb-2">
-              <div>
-                <span class="font-bold text-slate-800">Khách: ${ord.userName}</span>
-                <span class="text-xs text-slate-500 ml-2">(${ord.userEmail || ''})</span>
+          container.innerHTML = orders.map(ord => `
+            <div class="border rounded-xl p-4 bg-slate-50 space-y-3">
+              <div class="flex justify-between items-center border-b pb-2">
+                <div>
+                  <span class="font-bold text-slate-800">Khách: ${ord.userName}</span>
+                </div>
+                <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">${ord.status}</span>
               </div>
-              <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">${ord.status}</span>
+              <p class="text-xs text-slate-600"><strong>Địa chỉ giao:</strong> ${ord.address}</p>
+              ${ord.note ? `<p class="text-xs text-slate-600"><strong>Ghi chú:</strong> ${ord.note}</p>` : ''}
+              <div>
+                <p class="text-xs font-semibold text-slate-700 mb-1">Món đặt:</p>
+                <ul class="text-xs space-y-1 pl-4 list-disc text-slate-600">
+                  ${(ord.items || []).map(i => `<li>${i.name} x${i.quantity} — ${(i.price * i.quantity).toLocaleString('vi-VN')} đ</li>`).join('')}
+                </ul>
+              </div>
+              <div class="flex justify-between items-center pt-2 border-t text-sm font-bold">
+                <span>Tổng tiền:</span>
+                <span class="text-orange-600">${Number(ord.totalAmount).toLocaleString('vi-VN')} đ</span>
+              </div>
             </div>
-            <p class="text-xs text-slate-600"><strong class="text-slate-700">Địa chỉ giao:</strong> ${ord.address}</p>
-            ${ord.note ? `<p class="text-xs text-slate-600"><strong class="text-slate-700">Ghi chú:</strong> ${ord.note}</p>` : ''}
-            <div>
-              <p class="text-xs font-semibold text-slate-700 mb-1">Chi tiết món đặt:</p>
-              <ul class="text-xs space-y-1 pl-4 list-disc text-slate-600">
-                ${(ord.items || []).map(i => `<li>${i.name} x${i.quantity} — ${(i.price * i.quantity).toLocaleString('vi-VN')} đ</li>`).join('')}
-              </ul>
-            </div>
-            <div class="flex justify-between items-center pt-2 border-t text-sm font-bold">
-              <span>Tổng tiền:</span>
-              <span class="text-orange-600">${Number(ord.totalAmount).toLocaleString('vi-VN')} đ</span>
-            </div>
-          </div>
-        `).join('');
-      });
+          `).join('');
+        }, err => console.warn(err));
+      } catch (e) {
+        console.warn(e);
+      }
     }
 
     // Modal Authentication
@@ -759,7 +747,7 @@
         tabRegister.className = "flex-1 py-2 font-semibold text-orange-600 border-b-2 border-orange-600";
         tabLogin.className = "flex-1 py-2 font-semibold text-slate-400 border-b-2 border-transparent";
         nameField.classList.remove('hidden');
-        btn.innerText = "Đăng Ký Tài Khoản Khách";
+        btn.innerText = "Đăng Ký Khách Mới";
       }
     };
 
@@ -775,7 +763,6 @@
           const name = document.getElementById('authName').value || "Khách Hàng";
           const userCred = await createUserWithEmailAndPassword(auth, email, password);
           await updateProfile(userCred.user, { displayName: name });
-          // Lưu dấu tài khoản này tạo từ web -> phân loại là CUSTOMER
           await setDoc(doc(db, "users", userCred.user.uid), {
             email: email,
             name: name,
@@ -792,6 +779,10 @@
     window.handleLogout = function() {
       signOut(auth);
     };
+
+    // Khởi tạo chạy ban đầu
+    window.updateUIHeader();
+    window.renderRestaurants();
   </script>
 </body>
 </html>
