@@ -39,7 +39,6 @@
 
     <!-- 1. GIAO DIỆN KHÁCH HÀNG -->
     <div id="customerView" class="space-y-6">
-      <!-- Thanh điều hướng khách hàng -->
       <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
         <div class="flex gap-2">
           <button onclick="window.switchCustomerTab('home')" id="tabBtnHome" class="px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg text-sm transition">Khám Phá Quán</button>
@@ -49,7 +48,6 @@
         </div>
       </div>
 
-      <!-- Tab Trang Chủ / Danh sách quán -->
       <div id="customerHomeTab" class="space-y-6">
         <section id="restaurantListView" class="space-y-6">
           <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -85,7 +83,6 @@
         </section>
       </div>
 
-      <!-- Tab Đơn Hàng Của Khách & Lịch Sử -->
       <div id="customerOrdersTab" class="hidden space-y-6">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
@@ -106,7 +103,7 @@
           <h2 class="text-2xl font-bold text-slate-800 mt-2">Bảng Quản Trị Hệ Thống</h2>
         </div>
         <div class="flex gap-2">
-          <button onclick="window.switchAdminTab('info')" id="tabBtnInfo" class="px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg text-sm transition">Thông Tin & Menu Quán</button>
+          <button onclick="window.switchAdminTab('info')" id="tabBtnInfo" class="px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg text-sm transition">Quản Lý Quán & Menu</button>
           <button onclick="window.switchAdminTab('orders')" id="tabBtnOrders" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg text-sm transition relative">
             Quản Lý Đơn Hàng <span id="orderNotificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
           </button>
@@ -115,8 +112,22 @@
 
       <!-- Tab Thông tin & Menu -->
       <div id="adminTabInfo" class="space-y-6">
+        <!-- Danh sách tất cả các quán để Admin chọn -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-          <h3 class="font-bold text-lg text-slate-800 border-b pb-2"><i class="fa-solid fa-store text-orange-500 mr-2"></i> Cập Nhật Thông Tin Quán</h3>
+          <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-list text-orange-500 mr-2"></i> Danh Sách Quán Ăn Trong Hệ Thống</h3>
+            <button onclick="window.handleAddNewRestaurantPrompt()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition shadow">
+              <i class="fa-solid fa-plus mr-1"></i> Thêm Quán Mới
+            </button>
+          </div>
+          <div id="adminRestaurantListGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Render danh sách quán cho admin chọn -->
+          </div>
+        </div>
+
+        <!-- Form chỉnh sửa quán đang chọn -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+          <h3 class="font-bold text-lg text-slate-800 border-b pb-2"><i class="fa-solid fa-store text-orange-500 mr-2"></i> Cập Nhật Thông Tin Quán: <span id="currentEditingResName" class="text-orange-600">--</span></h3>
           <form id="restaurantConfigForm" onsubmit="window.handleSaveRestaurantConfig(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Tên Quán Ăn</label>
@@ -135,17 +146,18 @@
               <input type="text" id="adminResHours" placeholder="Ví dụ: 08:00 - 22:00" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
             </div>
             <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Mô Tả / Menu Tổng</label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Mô Tả / Giới thiệu</label>
               <textarea id="adminResDesc" rows="2" class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-2 flex gap-3">
               <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition">Lưu Thông Tin Quán</button>
             </div>
           </form>
         </div>
 
+        <!-- Quản lý menu món ăn của quán đang chọn -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6">
-          <h3 class="font-bold text-lg text-slate-800 border-b pb-2"><i class="fa-solid fa-bowl-food text-orange-500 mr-2"></i> Thêm Món Ăn Mới</h3>
+          <h3 class="font-bold text-lg text-slate-800 border-b pb-2"><i class="fa-solid fa-bowl-food text-orange-500 mr-2"></i> Thêm Món Ăn Mới Cho Quán Này</h3>
           <form id="addMenuItemForm" onsubmit="window.handleAddMenuItem(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Tên Món Ăn</label>
@@ -169,7 +181,7 @@
           </form>
 
           <div class="mt-6">
-            <h4 class="font-bold text-sm text-slate-700 mb-3">Danh Sách Món Hiện Tại</h4>
+            <h4 class="font-bold text-sm text-slate-700 mb-3">Danh Sách Món Ăn Của Quán</h4>
             <div id="adminMenuList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Render danh sách món admin -->
             </div>
@@ -320,6 +332,7 @@
       }
     ];
     let activeRestaurant = null;
+    let currentAdminSelectedResId = null;
     let unsubOrders = null;
 
     window.updateUIHeader = function() {
@@ -403,10 +416,23 @@
             restaurants = list;
           }
           renderRestaurants();
-          if (userRole === 'admin') loadAdminRestaurantData();
+          if (userRole === 'admin') {
+            renderAdminRestaurantList();
+            if (!currentAdminSelectedResId && restaurants.length > 0) {
+              window.selectAdminRestaurant(restaurants[0].id);
+            } else if (currentAdminSelectedResId) {
+              window.selectAdminRestaurant(currentAdminSelectedResId);
+            }
+          }
         }, (err) => {
           document.getElementById('permissionWarning').classList.remove('hidden');
           renderRestaurants();
+          if (userRole === 'admin') {
+            renderAdminRestaurantList();
+            if (!currentAdminSelectedResId && restaurants.length > 0) {
+              window.selectAdminRestaurant(restaurants[0].id);
+            }
+          }
         });
       } catch (e) {
         renderRestaurants();
@@ -504,7 +530,6 @@
       window.showRestaurantList();
     };
 
-    // Chuyển tab phía khách hàng (Khám phá <-> Đơn hàng của tôi)
     window.switchCustomerTab = function(tab) {
       const homeTab = document.getElementById('customerHomeTab');
       const ordersTab = document.getElementById('customerOrdersTab');
@@ -525,7 +550,6 @@
       }
     };
 
-    // Giỏ hàng
     window.addToCart = function(itemId) {
       if (!activeRestaurant) return;
       const item = activeRestaurant.menu.find(m => m.id === itemId);
@@ -574,7 +598,6 @@
       document.getElementById('cartModal').classList.toggle('hidden');
     };
 
-    // Lấy vị trí GPS
     window.getLocation = function() {
       const st = document.getElementById('geoStatus');
       if (!navigator.geolocation) { 
@@ -639,7 +662,6 @@
       }
     };
 
-    // Lắng nghe đơn hàng của khách hàng hiện tại
     function listenCustomerOrders() {
       if (!currentUser) return;
       try {
@@ -674,7 +696,7 @@
                 </div>
               `;
             } else if (ord.customerConfirmed) {
-              statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">Đã hoàn thành & Đã xác nhận nhận hàng</span>`;
+              statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">Đã hoàn thành & Đã xác nhận</span>`;
             }
 
             return `
@@ -709,7 +731,6 @@
       }
     }
 
-    // Khách hàng xác nhận đã nhận được hàng
     window.confirmReceived = async function(orderId, received) {
       if (!received) {
         alert("Vui lòng liên hệ số điện thoại quán để được hỗ trợ kiểm tra đơn hàng.");
@@ -727,24 +748,77 @@
 
     // Logic Admin Dashboard
     function initAdminDashboard() {
-      loadAdminRestaurantData();
+      renderAdminRestaurantList();
+      if (restaurants.length > 0 && !currentAdminSelectedResId) {
+        window.selectAdminRestaurant(restaurants[0].id);
+      }
       listenAdminOrders();
     }
 
-    function loadAdminRestaurantData() {
-      if (restaurants.length === 0) return;
-      const res = restaurants[0];
+    window.renderAdminRestaurantList = function() {
+      const grid = document.getElementById('adminRestaurantListGrid');
+      if (!grid) return;
+      grid.innerHTML = restaurants.map(res => `
+        <div onclick="window.selectAdminRestaurant('${res.id}')" class="p-3 border rounded-xl cursor-pointer transition flex items-center gap-3 ${currentAdminSelectedResId === res.id ? 'border-orange-500 bg-orange-50/50 shadow-sm' : 'border-slate-200 hover:bg-slate-50'}">
+          <img src="${res.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}" class="w-12 h-12 object-cover rounded-lg">
+          <div class="flex-1 overflow-hidden">
+            <h5 class="font-bold text-sm text-slate-800 truncate">${res.name}</h5>
+            <p class="text-[11px] text-slate-500 truncate">${res.address}</p>
+          </div>
+          ${currentAdminSelectedResId === res.id ? '<i class="fa-solid fa-circle-check text-orange-600 text-lg"></i>' : ''}
+        </div>
+      `).join('');
+    };
+
+    window.selectAdminRestaurant = function(resId) {
+      currentAdminSelectedResId = resId;
+      const res = restaurants.find(r => r.id === resId) || restaurants[0];
+      if (!res) return;
+
+      document.getElementById('currentEditingResName').innerText = res.name;
       document.getElementById('adminResName').value = res.name || '';
       document.getElementById('adminResPhone').value = res.phone || '';
       document.getElementById('adminResAddress').value = res.address || '';
       document.getElementById('adminResHours').value = res.hours || '';
       document.getElementById('adminResDesc').value = res.description || '';
+
       renderAdminMenu(res.menu || [], res.id);
-    }
+      renderAdminRestaurantList();
+    };
+
+    window.handleAddNewRestaurantPrompt = async function() {
+      const name = prompt("Nhập tên quán ăn mới:");
+      if (!name) return;
+      const phone = prompt("Nhập số điện thoại quán:") || "0909000000";
+      const address = prompt("Nhập địa chỉ quán:") || "Hà Nội";
+
+      const newResId = 'res_' + Date.now();
+      const newResData = {
+        name: name,
+        phone: phone,
+        address: address,
+        hours: "08:00 - 22:00",
+        description: "Quán mới mở trên hệ thống ShipFood.",
+        image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
+        menu: []
+      };
+
+      try {
+        await setDoc(doc(db, "restaurants", newResId), newResData);
+        alert("Thêm quán mới thành công!");
+        window.selectAdminRestaurant(newResId);
+      } catch (err) {
+        alert("Lỗi thêm quán: " + err.message);
+      }
+    };
 
     function renderAdminMenu(menu, resId) {
       const list = document.getElementById('adminMenuList');
       if (!list) return;
+      if (menu.length === 0) {
+        list.innerHTML = `<p class="text-xs text-slate-400 col-span-2 py-4 text-center">Quán này chưa có món ăn nào.</p>`;
+        return;
+      }
       list.innerHTML = menu.map(item => `
         <div class="flex items-center justify-between p-3 border rounded-lg bg-slate-50">
           <div class="flex items-center gap-3">
@@ -754,26 +828,31 @@
               <p class="text-xs text-orange-600 font-bold">${Number(item.price).toLocaleString('vi-VN')} đ</p>
             </div>
           </div>
-          <button onclick="window.deleteMenuItem('${resId}', '${item.id}')" class="text-red-500 hover:text-red-700 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i> Xóa</button>
+          <div class="flex gap-2">
+            <button onclick="window.editMenuItemPrompt('${resId}', '${item.id}')" class="text-blue-600 hover:text-blue-800 text-xs px-2 py-1"><i class="fa-solid fa-pen"></i> Sửa</button>
+            <button onclick="window.deleteMenuItem('${resId}', '${item.id}')" class="text-red-500 hover:text-red-700 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i> Xóa</button>
+          </div>
         </div>
       `).join('');
     }
 
     window.handleSaveRestaurantConfig = async function(e) {
       e.preventDefault();
-      const resId = restaurants[0]?.id || "res_demo";
+      if (!currentAdminSelectedResId) return;
+      const res = restaurants.find(r => r.id === currentAdminSelectedResId);
+      if (!res) return;
+
       const updatedData = {
+        ...res,
         name: document.getElementById('adminResName').value,
         phone: document.getElementById('adminResPhone').value,
         address: document.getElementById('adminResAddress').value,
         hours: document.getElementById('adminResHours').value,
-        description: document.getElementById('adminResDesc').value,
-        image: restaurants[0]?.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
-        menu: restaurants[0]?.menu || []
+        description: document.getElementById('adminResDesc').value
       };
 
       try {
-        await setDoc(doc(db, "restaurants", resId), updatedData);
+        await setDoc(doc(db, "restaurants", currentAdminSelectedResId), updatedData);
         alert("Cập nhật thông tin quán thành công!");
       } catch (err) {
         alert("Lỗi cập nhật: " + err.message);
@@ -782,8 +861,9 @@
 
     window.handleAddMenuItem = async function(e) {
       e.preventDefault();
-      const res = restaurants[0] || {};
-      const resId = res.id || "res_demo";
+      if (!currentAdminSelectedResId) return;
+      const res = restaurants.find(r => r.id === currentAdminSelectedResId);
+      if (!res) return;
       
       const fileInput = document.getElementById('menuItemImageFile');
       const file = fileInput.files[0];
@@ -808,7 +888,7 @@
         menu.push(newItem);
 
         try {
-          await setDoc(doc(db, "restaurants", resId), { ...res, menu });
+          await setDoc(doc(db, "restaurants", currentAdminSelectedResId), { ...res, menu });
           alert("Thêm món ăn thành công!");
           document.getElementById('addMenuItemForm').reset();
         } catch (err) {
@@ -818,6 +898,30 @@
       reader.readAsDataURL(file);
     };
 
+    window.editMenuItemPrompt = async function(resId, itemId) {
+      const res = restaurants.find(r => r.id === resId);
+      if (!res) return;
+      const item = (res.menu || []).find(m => m.id === itemId);
+      if (!item) return;
+
+      const newName = prompt("Sửa tên món ăn:", item.name);
+      if (newName === null) return;
+      const newPriceStr = prompt("Sửa giá tiền (VNĐ):", item.price);
+      if (newPriceStr === null) return;
+      const newDesc = prompt("Sửa mô tả món ăn:", item.desc || "");
+
+      item.name = newName;
+      item.price = Number(newPriceStr) || item.price;
+      item.desc = newDesc;
+
+      try {
+        await setDoc(doc(db, "restaurants", resId), { ...res });
+        alert("Cập nhật món ăn thành công!");
+      } catch (err) {
+        alert("Lỗi cập nhật món: " + err.message);
+      }
+    };
+
     window.deleteMenuItem = async function(resId, itemId) {
       if (!confirm("Bạn có chắc muốn xóa món này?")) return;
       const res = restaurants.find(r => r.id === resId);
@@ -825,6 +929,7 @@
       const updatedMenu = (res.menu || []).filter(m => m.id !== itemId);
       try {
         await setDoc(doc(db, "restaurants", resId), { ...res, menu: updatedMenu });
+        alert("Đã xóa món ăn!");
       } catch (err) {
         alert("Lỗi xóa món: " + err.message);
       }
@@ -875,7 +980,6 @@
             const mapQuery = ord.gps !== 'Chưa có GPS' ? ord.gps : ord.detailAddress;
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
             
-            // Các nút chuyển trạng thái liên tiếp cho Admin
             let actionButtons = '';
             if (ord.status === 'Đang chờ xử lý') {
               actionButtons = `<button onclick="window.updateOrderStatus('${ord.id}', 'Nhận đơn')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition shadow">Nhận đơn</button>`;
@@ -930,7 +1034,6 @@
       }
     }
 
-    // Admin cập nhật trạng thái đơn hàng liên tiếp
     window.updateOrderStatus = async function(orderId, newStatus) {
       try {
         await updateDoc(doc(db, "orders", orderId), {
@@ -942,7 +1045,6 @@
       }
     };
 
-    // Modal Authentication
     window.toggleAuthModal = function() {
       document.getElementById('authModal').classList.toggle('hidden');
     };
