@@ -141,10 +141,17 @@
               <label class="block text-xs font-semibold text-slate-600 mb-1">Địa Chỉ Quán</label>
               <input type="text" id="adminResAddress" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
             </div>
-            <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Thời Gian Hoạt Động</label>
-              <input type="text" id="adminResHours" placeholder="Ví dụ: 08:00 - 22:00" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
+            
+            <!-- Ô CHỌN GIỜ MỞ CỬA VÀ ĐÓNG CỬA -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Giờ Mở Cửa</label>
+              <input type="time" id="adminOpenTime" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-white">
             </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Giờ Đóng Cửa</label>
+              <input type="time" id="adminCloseTime" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-white">
+            </div>
+
             <div class="md:col-span-2">
               <label class="block text-xs font-semibold text-slate-600 mb-1">Mô Tả / Giới thiệu</label>
               <textarea id="adminResDesc" rows="2" class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
@@ -322,7 +329,8 @@
         name: "Quán Ăn Mẫu ShipFood",
         phone: "0909123456",
         address: "123 Đường Nguyễn Trãi, TP. Hà Nội",
-        hours: "08:00 - 22:00 Hàng ngày",
+        openTime: "08:00",
+        closeTime: "22:00",
         description: "Quán ăn mẫu phục vụ các món ăn truyền thống.",
         image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
         menu: [
@@ -334,6 +342,26 @@
     let activeRestaurant = null;
     let currentAdminSelectedResId = null;
     let unsubOrders = null;
+
+    // Hàm kiểm tra xem hiện tại quán có đang mở cửa không
+    function isRestaurantOpen(openTime, closeTime) {
+      if (!openTime || !closeTime) return true;
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      const [openH, openM] = openTime.split(':').map(Number);
+      const [closeH, closeM] = closeTime.split(':').map(Number);
+
+      const openMinutes = openH * 60 + openM;
+      const closeMinutes = closeH * 60 + closeM;
+
+      if (closeMinutes >= openMinutes) {
+        return currentMinutes >= openMinutes && currentMinutes <= closeMinutes;
+      } else {
+        // Trường hợp mở xuyên đêm qua 12h đêm
+        return currentMinutes >= openMinutes || currentMinutes <= closeMinutes;
+      }
+    }
 
     window.updateUIHeader = function() {
       const container = document.getElementById('headerAuthArea');
@@ -442,56 +470,79 @@
     window.renderRestaurants = function() {
       const grid = document.getElementById('restaurantGrid');
       if (!grid) return;
-      grid.innerHTML = restaurants.map(res => `
-        <div onclick="window.selectRestaurant('${res.id}')" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition cursor-pointer flex flex-col group">
-          <div class="h-44 overflow-hidden relative">
-            <img src="${res.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">Mở Cửa</span>
-          </div>
-          <div class="p-5 flex-1 flex flex-col justify-between">
-            <div>
-              <h3 class="font-bold text-lg text-slate-800 group-hover:text-orange-600 transition">${res.name}</h3>
-              <p class="text-xs text-slate-500 mt-2 line-clamp-2"><i class="fa-solid fa-location-dot text-orange-500 mr-1"></i>${res.address}</p>
-              <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-clock text-orange-500 mr-1"></i>${res.hours}</p>
+      grid.innerHTML = restaurants.map(res => {
+        const isOpen = isRestaurantOpen(res.openTime, res.closeTime);
+        const statusBadge = isOpen 
+          ? `<span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">Mở Cửa</span>`
+          : `<span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">Quán đã đóng cửa</span>`;
+
+        return `
+          <div onclick="window.selectRestaurant('${res.id}')" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition cursor-pointer flex flex-col group">
+            <div class="h-44 overflow-hidden relative">
+              <img src="${res.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              ${statusBadge}
             </div>
-            <div class="mt-4 pt-3 border-t flex justify-between items-center text-xs font-semibold text-orange-600">
-              <span>Xem Menu & Đặt Hàng</span>
-              <i class="fa-solid fa-chevron-right"></i>
+            <div class="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-lg text-slate-800 group-hover:text-orange-600 transition">${res.name}</h3>
+                <p class="text-xs text-slate-500 mt-2 line-clamp-2"><i class="fa-solid fa-location-dot text-orange-500 mr-1"></i>${res.address}</p>
+                <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-clock text-orange-500 mr-1"></i>Giờ hoạt động: ${res.openTime || '08:00'} - ${res.closeTime || '22:00'}</p>
+              </div>
+              <div class="mt-4 pt-3 border-t flex justify-between items-center text-xs font-semibold text-orange-600">
+                <span>Xem Menu & Đặt Hàng</span>
+                <i class="fa-solid fa-chevron-right"></i>
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     };
 
     window.filterRestaurants = function() {
       const q = document.getElementById('searchRestaurantInput').value.toLowerCase();
       const filtered = restaurants.filter(r => r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q));
       const grid = document.getElementById('restaurantGrid');
-      grid.innerHTML = filtered.map(res => `
-        <div onclick="window.selectRestaurant('${res.id}')" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition cursor-pointer flex flex-col group">
-          <div class="h-44 overflow-hidden relative">
-            <img src="${res.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+      grid.innerHTML = filtered.map(res => {
+        const isOpen = isRestaurantOpen(res.openTime, res.closeTime);
+        const statusBadge = isOpen 
+          ? `<span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">Mở Cửa</span>`
+          : `<span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">Quán đã đóng cửa</span>`;
+
+        return `
+          <div onclick="window.selectRestaurant('${res.id}')" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition cursor-pointer flex flex-col group">
+            <div class="h-44 overflow-hidden relative">
+              <img src="${res.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              ${statusBadge}
+            </div>
+            <div class="p-5">
+              <h3 class="font-bold text-lg text-slate-800">${res.name}</h3>
+              <p class="text-xs text-slate-500 mt-1">${res.address}</p>
+            </div>
           </div>
-          <div class="p-5">
-            <h3 class="font-bold text-lg text-slate-800">${res.name}</h3>
-            <p class="text-xs text-slate-500 mt-1">${res.address}</p>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     };
 
     window.selectRestaurant = function(id) {
       activeRestaurant = restaurants.find(r => r.id === id) || restaurants[0];
       if (!activeRestaurant) return;
 
+      const isOpen = isRestaurantOpen(activeRestaurant.openTime, activeRestaurant.closeTime);
+      const statusTag = isOpen 
+        ? `<span class="bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold ml-2">Mở Cửa</span>`
+        : `<span class="bg-red-600 text-white text-xs px-2.5 py-1 rounded-full font-bold ml-2">Quán đã đóng cửa</span>`;
+
       document.getElementById('restaurantHeaderCard').innerHTML = `
         <div class="flex flex-col md:flex-row gap-6">
           <img src="${activeRestaurant.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full md:w-48 h-36 object-cover rounded-xl shadow">
           <div class="space-y-2">
-            <h2 class="text-2xl font-bold text-slate-800">${activeRestaurant.name}</h2>
+            <div class="flex items-center">
+              <h2 class="text-2xl font-bold text-slate-800">${activeRestaurant.name}</h2>
+              ${statusTag}
+            </div>
             <p class="text-sm text-slate-600"><i class="fa-solid fa-location-dot text-orange-500 mr-2"></i>${activeRestaurant.address}</p>
             <p class="text-sm text-slate-600"><i class="fa-solid fa-phone text-orange-500 mr-2"></i>${activeRestaurant.phone}</p>
-            <p class="text-sm text-slate-600"><i class="fa-solid fa-clock text-orange-500 mr-2"></i>${activeRestaurant.hours}</p>
+            <p class="text-sm text-slate-600"><i class="fa-solid fa-clock text-orange-500 mr-2"></i>Giờ hoạt động: ${activeRestaurant.openTime || '08:00'} - ${activeRestaurant.closeTime || '22:00'}</p>
           </div>
         </div>
       `;
@@ -508,8 +559,8 @@
               <p class="text-orange-600 font-bold text-sm mt-2">${Number(item.price).toLocaleString('vi-VN')} đ</p>
             </div>
           </div>
-          <button onclick="window.addToCart('${item.id}')" class="mt-4 w-full bg-orange-50 hover:bg-orange-600 text-orange-600 hover:text-white font-semibold py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
-            <i class="fa-solid fa-plus"></i> Thêm vào giỏ
+          <button onclick="window.addToCart('${item.id}')" ${!isOpen ? 'disabled class="mt-4 w-full bg-slate-200 text-slate-400 font-semibold py-1.5 rounded-lg text-xs cursor-not-allowed"' : 'class="mt-4 w-full bg-orange-50 hover:bg-orange-600 text-orange-600 hover:text-white font-semibold py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1"'}>
+            ${isOpen ? '<i class="fa-solid fa-plus"></i> Thêm vào giỏ' : 'Quán đã đóng cửa'}
           </button>
         </div>
       `).join('');
@@ -552,6 +603,10 @@
 
     window.addToCart = function(itemId) {
       if (!activeRestaurant) return;
+      if (!isRestaurantOpen(activeRestaurant.openTime, activeRestaurant.closeTime)) {
+        alert("Quán đã đóng cửa, không thể đặt món vào lúc này!");
+        return;
+      }
       const item = activeRestaurant.menu.find(m => m.id === itemId);
       if (!item) return;
 
@@ -779,7 +834,8 @@
       document.getElementById('adminResName').value = res.name || '';
       document.getElementById('adminResPhone').value = res.phone || '';
       document.getElementById('adminResAddress').value = res.address || '';
-      document.getElementById('adminResHours').value = res.hours || '';
+      document.getElementById('adminOpenTime').value = res.openTime || '08:00';
+      document.getElementById('adminCloseTime').value = res.closeTime || '22:00';
       document.getElementById('adminResDesc').value = res.description || '';
 
       renderAdminMenu(res.menu || [], res.id);
@@ -797,7 +853,8 @@
         name: name,
         phone: phone,
         address: address,
-        hours: "08:00 - 22:00",
+        openTime: "08:00",
+        closeTime: "22:00",
         description: "Quán mới mở trên hệ thống ShipFood.",
         image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
         menu: []
@@ -847,7 +904,8 @@
         name: document.getElementById('adminResName').value,
         phone: document.getElementById('adminResPhone').value,
         address: document.getElementById('adminResAddress').value,
-        hours: document.getElementById('adminResHours').value,
+        openTime: document.getElementById('adminOpenTime').value,
+        closeTime: document.getElementById('adminCloseTime').value,
         description: document.getElementById('adminResDesc').value
       };
 
