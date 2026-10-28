@@ -105,13 +105,9 @@
               <label class="block text-xs font-semibold text-slate-600 mb-1">Địa Chỉ Quán</label>
               <input type="text" id="adminResAddress" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
             </div>
-            <div>
+            <div class="md:col-span-2">
               <label class="block text-xs font-semibold text-slate-600 mb-1">Thời Gian Hoạt Động</label>
               <input type="text" id="adminResHours" placeholder="Ví dụ: 08:00 - 22:00" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Link Ảnh Bìa Quán (URL)</label>
-              <input type="url" id="adminResImage" required class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
             </div>
             <div class="md:col-span-2">
               <label class="block text-xs font-semibold text-slate-600 mb-1">Mô Tả / Menu Tổng</label>
@@ -135,8 +131,8 @@
               <input type="number" id="menuItemPrice" required class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500" placeholder="45000">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Link Ảnh Món (URL)</label>
-              <input type="url" id="menuItemImage" required class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500" placeholder="https://...">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Tải Ảnh Món Ăn Lên</label>
+              <input type="file" id="menuItemImageFile" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer border rounded-lg p-1.5 bg-white">
             </div>
             <div class="md:col-span-2">
               <label class="block text-xs font-semibold text-slate-600 mb-1">Mô Tả Món Ăn</label>
@@ -293,7 +289,6 @@
     let activeRestaurant = null;
     let unsubOrders = null;
 
-    // Đảm bảo nút Header luôn luôn vẽ thành công
     window.updateUIHeader = function() {
       const container = document.getElementById('headerAuthArea');
       const cartFab = document.getElementById('cartFab');
@@ -341,7 +336,6 @@
       }
     };
 
-    // Auth State Watcher
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       if (user) {
@@ -354,8 +348,7 @@
             userRole = 'admin';
           }
         } catch (e) {
-          console.warn("Firestore error user lookup:", e);
-          userRole = 'admin'; // Mặc định nếu không check được thì gán Admin
+          userRole = 'admin';
         }
       } else {
         userRole = 'customer';
@@ -378,7 +371,6 @@
           renderRestaurants();
           if (userRole === 'admin') loadAdminRestaurantData();
         }, (err) => {
-          console.warn("Lỗi Firestore Permission:", err);
           document.getElementById('permissionWarning').classList.remove('hidden');
           renderRestaurants();
         });
@@ -393,7 +385,7 @@
       grid.innerHTML = restaurants.map(res => `
         <div onclick="window.selectRestaurant('${res.id}')" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition cursor-pointer flex flex-col group">
           <div class="h-44 overflow-hidden relative">
-            <img src="${res.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <img src="${res.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">Mở Cửa</span>
           </div>
           <div class="p-5 flex-1 flex flex-col justify-between">
@@ -418,7 +410,7 @@
       grid.innerHTML = filtered.map(res => `
         <div onclick="window.selectRestaurant('${res.id}')" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition cursor-pointer flex flex-col group">
           <div class="h-44 overflow-hidden relative">
-            <img src="${res.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <img src="${res.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
           </div>
           <div class="p-5">
             <h3 class="font-bold text-lg text-slate-800">${res.name}</h3>
@@ -434,7 +426,7 @@
 
       document.getElementById('restaurantHeaderCard').innerHTML = `
         <div class="flex flex-col md:flex-row gap-6">
-          <img src="${activeRestaurant.image}" class="w-full md:w-48 h-36 object-cover rounded-xl shadow">
+          <img src="${activeRestaurant.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full md:w-48 h-36 object-cover rounded-xl shadow">
           <div class="space-y-2">
             <h2 class="text-2xl font-bold text-slate-800">${activeRestaurant.name}</h2>
             <p class="text-sm text-slate-600"><i class="fa-solid fa-location-dot text-orange-500 mr-2"></i>${activeRestaurant.address}</p>
@@ -579,7 +571,6 @@
       document.getElementById('adminResPhone').value = res.phone || '';
       document.getElementById('adminResAddress').value = res.address || '';
       document.getElementById('adminResHours').value = res.hours || '';
-      document.getElementById('adminResImage').value = res.image || '';
       document.getElementById('adminResDesc').value = res.description || '';
       renderAdminMenu(res.menu || [], res.id);
     }
@@ -609,8 +600,8 @@
         phone: document.getElementById('adminResPhone').value,
         address: document.getElementById('adminResAddress').value,
         hours: document.getElementById('adminResHours').value,
-        image: document.getElementById('adminResImage').value,
         description: document.getElementById('adminResDesc').value,
+        image: restaurants[0]?.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
         menu: restaurants[0]?.menu || []
       };
 
@@ -626,23 +617,38 @@
       e.preventDefault();
       const res = restaurants[0] || {};
       const resId = res.id || "res_demo";
-      const newItem = {
-        id: 'm_' + Date.now(),
-        name: document.getElementById('menuItemName').value,
-        price: Number(document.getElementById('menuItemPrice').value),
-        image: document.getElementById('menuItemImage').value,
-        desc: document.getElementById('menuItemDesc').value
-      };
-      const menu = res.menu || [];
-      menu.push(newItem);
-
-      try {
-        await setDoc(doc(db, "restaurants", resId), { ...res, menu });
-        alert("Thêm món ăn thành công!");
-        document.getElementById('addMenuItemForm').reset();
-      } catch (err) {
-        alert("Lỗi thêm món: " + err.message);
+      
+      const fileInput = document.getElementById('menuItemImageFile');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert("Vui lòng chọn ảnh món ăn!");
+        return;
       }
+
+      const reader = new FileReader();
+      reader.onload = async function(uploadEvent) {
+        const base64Image = uploadEvent.target.result;
+        
+        const newItem = {
+          id: 'm_' + Date.now(),
+          name: document.getElementById('menuItemName').value,
+          price: Number(document.getElementById('menuItemPrice').value),
+          image: base64Image,
+          desc: document.getElementById('menuItemDesc').value
+        };
+        const menu = res.menu || [];
+        menu.push(newItem);
+
+        try {
+          await setDoc(doc(db, "restaurants", resId), { ...res, menu });
+          alert("Thêm món ăn thành công!");
+          document.getElementById('addMenuItemForm').reset();
+        } catch (err) {
+          alert("Lỗi thêm món: " + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
     };
 
     window.deleteMenuItem = async function(resId, itemId) {
@@ -780,7 +786,6 @@
       signOut(auth);
     };
 
-    // Khởi tạo chạy ban đầu
     window.updateUIHeader();
     window.renderRestaurants();
   </script>
