@@ -39,38 +39,63 @@
 
     <!-- 1. GIAO DIỆN KHÁCH HÀNG -->
     <div id="customerView" class="space-y-6">
-      <section id="restaurantListView" class="space-y-6">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <div>
-            <h2 class="text-2xl font-bold text-slate-800">Khám Phá Quán Ăn Ngon</h2>
-            <p class="text-slate-500 text-sm mt-1">Chọn quán ăn yêu thích và thưởng thức món ngon tận nhà</p>
-          </div>
-          <div class="w-full md:w-72 relative">
-            <input type="text" id="searchRestaurantInput" oninput="window.filterRestaurants()" placeholder="Tìm tên quán..." class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-sm"></i>
-          </div>
+      <!-- Thanh điều hướng khách hàng -->
+      <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex gap-2">
+          <button onclick="window.switchCustomerTab('home')" id="tabBtnHome" class="px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg text-sm transition">Khám Phá Quán</button>
+          <button onclick="window.switchCustomerTab('orders')" id="tabBtnMyOrders" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg text-sm transition relative">
+            Đơn Hàng Của Tôi & Lịch Sử
+          </button>
         </div>
-        <div id="restaurantGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Render danh sách quán -->
-        </div>
-      </section>
+      </div>
 
-      <section id="restaurantDetailView" class="hidden space-y-6">
-        <button onclick="window.showRestaurantList()" class="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium text-sm transition">
-          <i class="fa-solid fa-arrow-left mr-2"></i> Quay lại danh sách quán
-        </button>
-        <div id="restaurantHeaderCard" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <!-- Render thông tin quán chi tiết -->
-        </div>
-        <div>
-          <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
-            <i class="fa-solid fa-book-open text-orange-500 mr-2"></i> Thực Đơn Món Ăn
+      <!-- Tab Trang Chủ / Danh sách quán -->
+      <div id="customerHomeTab" class="space-y-6">
+        <section id="restaurantListView" class="space-y-6">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div>
+              <h2 class="text-2xl font-bold text-slate-800">Khám Phá Quán Ăn Ngon</h2>
+              <p class="text-slate-500 text-sm mt-1">Chọn quán ăn yêu thích và thưởng thức món ngon tận nhà</p>
+            </div>
+            <div class="w-full md:w-72 relative">
+              <input type="text" id="searchRestaurantInput" oninput="window.filterRestaurants()" placeholder="Tìm tên quán..." class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+              <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-sm"></i>
+            </div>
+          </div>
+          <div id="restaurantGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Render danh sách quán -->
+          </div>
+        </section>
+
+        <section id="restaurantDetailView" class="hidden space-y-6">
+          <button onclick="window.showRestaurantList()" class="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium text-sm transition">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Quay lại danh sách quán
+          </button>
+          <div id="restaurantHeaderCard" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <!-- Render thông tin quán chi tiết -->
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+              <i class="fa-solid fa-book-open text-orange-500 mr-2"></i> Thực Đơn Món Ăn
+            </h3>
+            <div id="menuGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Render menu -->
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab Đơn Hàng Của Khách & Lịch Sử -->
+      <div id="customerOrdersTab" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+          <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
+            <i class="fa-solid fa-bag-shopping text-orange-500 mr-2"></i> Trạng Thái Đơn Hàng & Lịch Sử
           </h3>
-          <div id="menuGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Render menu -->
+          <div id="customerOrdersContainer" class="space-y-4">
+            <p class="text-sm text-slate-400 text-center py-8">Bạn chưa có đơn hàng nào...</p>
           </div>
         </div>
-      </section>
+      </div>
     </div>
 
     <!-- 2. GIAO DIỆN ADMIN (QUẢN TRỊ) -->
@@ -83,7 +108,7 @@
         <div class="flex gap-2">
           <button onclick="window.switchAdminTab('info')" id="tabBtnInfo" class="px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg text-sm transition">Thông Tin & Menu Quán</button>
           <button onclick="window.switchAdminTab('orders')" id="tabBtnOrders" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg text-sm transition relative">
-            Đơn Hàng Khách Đặt <span id="orderNotificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+            Quản Lý Đơn Hàng <span id="orderNotificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
           </button>
         </div>
       </div>
@@ -156,7 +181,7 @@
       <div id="adminTabOrders" class="hidden space-y-4">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
-            <i class="fa-solid fa-bell text-orange-500 mr-2"></i> Danh Sách Đơn Hàng Tức Thời
+            <i class="fa-solid fa-bell text-orange-500 mr-2"></i> Quản Lý & Cập Nhật Trạng Thái Đơn Hàng
           </h3>
           <div id="adminOrdersContainer" class="space-y-4">
             <p class="text-sm text-slate-400 text-center py-8">Chưa có đơn hàng nào...</p>
@@ -192,14 +217,22 @@
         </div>
         <div class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Địa chỉ giao hàng *</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Số điện thoại liên hệ *</label>
+            <input type="tel" id="orderPhone" placeholder="Nhập số điện thoại nhận hàng..." class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Vị trí GPS (Tự động)</label>
             <div class="flex gap-2">
-              <input type="text" id="orderAddress" placeholder="Nhập địa chỉ hoặc dùng GPS..." class="flex-1 text-sm p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+              <input type="text" id="orderGps" readonly placeholder="Chưa lấy vị trí GPS..." class="flex-1 text-sm p-2 border rounded-lg bg-slate-100 text-slate-600 outline-none">
               <button onclick="window.getLocation()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1">
-                <i class="fa-solid fa-location-crosshairs text-orange-600"></i> GPS
+                <i class="fa-solid fa-location-crosshairs text-orange-600"></i> Lấy GPS
               </button>
             </div>
             <p id="geoStatus" class="text-xs text-slate-400 mt-1"></p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Địa chỉ chi tiết (Số nhà, ngõ ngách...) *</label>
+            <input type="text" id="orderDetailAddress" placeholder="Ví dụ: Số 12, ngõ 3, đường Nguyễn Trãi..." class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Ghi chú đơn hàng</label>
@@ -250,7 +283,7 @@
       signOut, onAuthStateChanged, updateProfile 
     } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
     import { 
-      getFirestore, collection, addDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, query, orderBy 
+      getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc, onSnapshot, serverTimestamp, query, orderBy 
     } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
     const firebaseConfig = {
@@ -323,6 +356,7 @@
           adminView.classList.add('hidden');
           customerView.classList.remove('hidden');
           cartFab.classList.remove('hidden');
+          listenCustomerOrders();
         }
       } else {
         container.innerHTML = `
@@ -466,7 +500,29 @@
 
     window.goHome = function() {
       if (userRole === 'admin') return;
+      window.switchCustomerTab('home');
       window.showRestaurantList();
+    };
+
+    // Chuyển tab phía khách hàng (Khám phá <-> Đơn hàng của tôi)
+    window.switchCustomerTab = function(tab) {
+      const homeTab = document.getElementById('customerHomeTab');
+      const ordersTab = document.getElementById('customerOrdersTab');
+      const btnHome = document.getElementById('tabBtnHome');
+      const btnOrders = document.getElementById('tabBtnMyOrders');
+
+      if (tab === 'home') {
+        homeTab.classList.remove('hidden');
+        ordersTab.classList.add('hidden');
+        btnHome.className = "px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg text-sm transition";
+        btnOrders.className = "px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg text-sm transition";
+      } else {
+        homeTab.classList.add('hidden');
+        ordersTab.classList.remove('hidden');
+        btnOrders.className = "px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg text-sm transition";
+        btnHome.className = "px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg text-sm transition";
+        listenCustomerOrders();
+      }
     };
 
     // Giỏ hàng
@@ -518,7 +574,7 @@
       document.getElementById('cartModal').classList.toggle('hidden');
     };
 
-    // Gọi trực tiếp trình duyệt mở hộp thoại xin quyền GPS nguyên bản (Cho phép / Từ chối)
+    // Lấy vị trí GPS
     window.getLocation = function() {
       const st = document.getElementById('geoStatus');
       if (!navigator.geolocation) { 
@@ -526,20 +582,20 @@
         return; 
       }
       
-      st.innerText = "Đang yêu cầu quyền vị trí từ thiết bị...";
+      st.innerText = "Đang lấy tọa độ GPS...";
       
       navigator.geolocation.getCurrentPosition(
         pos => {
-          document.getElementById('orderAddress').value = `GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-          st.innerText = "Lấy vị trí thành công!";
+          document.getElementById('orderGps').value = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+          st.innerText = "Lấy tọa độ GPS thành công!";
         },
         error => {
           console.warn("Lỗi GPS:", error);
           if (error.code === error.PERMISSION_DENIED) {
             st.innerText = "Quyền vị trí bị từ chối.";
-            alert("Bạn đã từ chối quyền vị trí. Vui lòng bật lại trong cài đặt trình duyệt.");
+            alert("Bạn đã từ chối quyền vị trí. Vui lòng kiểm tra lại cài đặt trình duyệt.");
           } else {
-            st.innerText = "Không thể lấy vị trí hiện tại.";
+            st.innerText = "Không thể lấy vị trí GPS.";
           }
         },
         { timeout: 10000, enableHighAccuracy: true }
@@ -549,27 +605,123 @@
     window.submitOrder = async function() {
       if (!currentUser) { alert("Vui lòng đăng nhập!"); window.toggleAuthModal(); return; }
       if (cart.length === 0) { alert("Giỏ hàng trống!"); return; }
-      const address = document.getElementById('orderAddress').value.trim();
-      if (!address) { alert("Vui lòng nhập địa chỉ!"); return; }
+      
+      const phone = document.getElementById('orderPhone').value.trim();
+      if (!phone) { alert("Vui lòng nhập số điện thoại liên hệ!"); return; }
 
+      const detailAddress = document.getElementById('orderDetailAddress').value.trim();
+      if (!detailAddress) { alert("Vui lòng nhập địa chỉ chi tiết giao hàng!"); return; }
+
+      const gps = document.getElementById('orderGps').value.trim() || "Chưa có GPS";
       const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
       try {
         await addDoc(collection(db, "orders"), {
           userId: currentUser.uid,
           userName: currentUser.displayName || currentUser.email,
-          address: address,
+          phone: phone,
+          gps: gps,
+          detailAddress: detailAddress,
           note: document.getElementById('orderNote').value.trim(),
           items: cart,
           totalAmount: total,
           status: "Đang chờ xử lý",
+          customerConfirmed: false,
           createdAt: serverTimestamp()
         });
         alert("Đặt hàng thành công!");
         cart = [];
         updateCartUI();
         window.toggleCartModal();
+        window.switchCustomerTab('orders');
       } catch (err) {
         alert("Lỗi đặt hàng: " + err.message);
+      }
+    };
+
+    // Lắng nghe đơn hàng của khách hàng hiện tại
+    function listenCustomerOrders() {
+      if (!currentUser) return;
+      try {
+        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+          const container = document.getElementById('customerOrdersContainer');
+          let orders = [];
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.userId === currentUser.uid) {
+              orders.push({ id: docSnap.id, ...data });
+            }
+          });
+
+          if (orders.length === 0) {
+            container.innerHTML = `<p class="text-sm text-slate-400 text-center py-8">Bạn chưa có đơn hàng nào.</p>`;
+            return;
+          }
+
+          container.innerHTML = orders.map(ord => {
+            let statusBadge = `<span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">${ord.status}</span>`;
+            let confirmBox = '';
+
+            if (ord.status === 'Đã hoàn thành' && !ord.customerConfirmed) {
+              confirmBox = `
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3">
+                  <span class="text-xs text-blue-800 font-semibold"><i class="fa-solid fa-circle-question mr-1"></i> Quán đã thông báo giao hàng thành công. Bạn đã nhận được hàng chưa?</span>
+                  <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="window.confirmReceived('${ord.id}', true)" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">Đã nhận được hàng</button>
+                    <button onclick="window.confirmReceived('${ord.id}', false)" class="flex-1 sm:flex-none bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">Chưa nhận được</button>
+                  </div>
+                </div>
+              `;
+            } else if (ord.customerConfirmed) {
+              statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">Đã hoàn thành & Đã xác nhận nhận hàng</span>`;
+            }
+
+            return `
+              <div class="border rounded-xl p-4 bg-slate-50 space-y-3 shadow-sm">
+                <div class="flex justify-between items-center border-b pb-2">
+                  <div>
+                    <span class="font-bold text-slate-800 text-sm">Mã đơn: ${ord.id.slice(0, 6)}...</span>
+                  </div>
+                  ${statusBadge}
+                </div>
+                <div class="text-xs text-slate-600 space-y-1">
+                  <p><strong>Địa chỉ nhận:</strong> ${ord.detailAddress}</p>
+                  <p><strong>Số điện thoại:</strong> ${ord.phone}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-semibold text-slate-700 mb-1">Món đã đặt:</p>
+                  <ul class="text-xs space-y-1 pl-4 list-disc text-slate-600">
+                    ${(ord.items || []).map(i => `<li>${i.name} x${i.quantity} — ${(i.price * i.quantity).toLocaleString('vi-VN')} đ</li>`).join('')}
+                  </ul>
+                </div>
+                ${confirmBox}
+                <div class="flex justify-between items-center pt-2 border-t text-sm font-bold">
+                  <span>Tổng tiền:</span>
+                  <span class="text-orange-600">${Number(ord.totalAmount).toLocaleString('vi-VN')} đ</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }, err => console.warn(err));
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    // Khách hàng xác nhận đã nhận được hàng
+    window.confirmReceived = async function(orderId, received) {
+      if (!received) {
+        alert("Vui lòng liên hệ số điện thoại quán để được hỗ trợ kiểm tra đơn hàng.");
+        return;
+      }
+      try {
+        await updateDoc(doc(db, "orders", orderId), {
+          customerConfirmed: true
+        });
+        alert("Cảm ơn bạn! Đơn hàng đã được xác nhận hoàn thành.");
+      } catch (err) {
+        alert("Lỗi xác nhận: " + err.message);
       }
     };
 
@@ -719,33 +871,76 @@
             return;
           }
 
-          container.innerHTML = orders.map(ord => `
-            <div class="border rounded-xl p-4 bg-slate-50 space-y-3">
-              <div class="flex justify-between items-center border-b pb-2">
-                <div>
-                  <span class="font-bold text-slate-800">Khách: ${ord.userName}</span>
+          container.innerHTML = orders.map(ord => {
+            const mapQuery = ord.gps !== 'Chưa có GPS' ? ord.gps : ord.detailAddress;
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+            
+            // Các nút chuyển trạng thái liên tiếp cho Admin
+            let actionButtons = '';
+            if (ord.status === 'Đang chờ xử lý') {
+              actionButtons = `<button onclick="window.updateOrderStatus('${ord.id}', 'Nhận đơn')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition shadow">Nhận đơn</button>`;
+            } else if (ord.status === 'Nhận đơn') {
+              actionButtons = `<button onclick="window.updateOrderStatus('${ord.id}', 'Đã lấy hàng')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition shadow">Đã lấy hàng</button>`;
+            } else if (ord.status === 'Đã lấy hàng') {
+              actionButtons = `<button onclick="window.updateOrderStatus('${ord.id}', 'Đã đến điểm giao')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition shadow">Đã đến điểm giao</button>`;
+            } else if (ord.status === 'Đã đến điểm giao') {
+              actionButtons = `<button onclick="window.updateOrderStatus('${ord.id}', 'Đã hoàn thành')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition shadow">Đã hoàn thành</button>`;
+            } else {
+              actionButtons = `<span class="text-emerald-600 font-bold text-xs"><i class="fa-solid fa-check-circle"></i> Đã hoàn thành</span>`;
+            }
+
+            return `
+              <div class="border rounded-xl p-4 bg-slate-50 space-y-3 shadow-sm">
+                <div class="flex justify-between items-center border-b pb-2">
+                  <div>
+                    <span class="font-bold text-slate-800 text-base">Khách: ${ord.userName}</span>
+                  </div>
+                  <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">${ord.status} ${ord.customerConfirmed ? '(Khách đã xác nhận)' : ''}</span>
                 </div>
-                <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">${ord.status}</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-700">
+                  <p><strong><i class="fa-solid fa-phone text-orange-500 mr-1"></i> Số điện thoại:</strong> <a href="tel:${ord.phone}" class="text-blue-600 font-bold hover:underline">${ord.phone}</a></p>
+                  <p><strong><i class="fa-solid fa-location-crosshairs text-orange-500 mr-1"></i> Tọa độ GPS:</strong> ${ord.gps}</p>
+                  <p class="md:col-span-2"><strong><i class="fa-solid fa-house text-orange-500 mr-1"></i> Địa chỉ chi tiết:</strong> ${ord.detailAddress}</p>
+                  ${ord.note ? `<p class="md:col-span-2"><strong><i class="fa-solid fa-note-sticky text-orange-500 mr-1"></i> Ghi chú:</strong> ${ord.note}</p>` : ''}
+                </div>
+                
+                <div class="flex flex-wrap gap-2 pt-2 items-center">
+                  <a href="${mapsUrl}" target="_blank" class="inline-flex items-center gap-1.5 text-xs bg-slate-700 hover:bg-slate-800 text-white font-semibold px-3 py-2 rounded-lg transition shadow">
+                    <i class="fa-solid fa-map-location-dot"></i> Google Maps
+                  </a>
+                  ${actionButtons}
+                </div>
+
+                <div>
+                  <p class="text-xs font-semibold text-slate-700 mb-1 pt-2 border-t">Món đặt:</p>
+                  <ul class="text-xs space-y-1 pl-4 list-disc text-slate-600">
+                    ${(ord.items || []).map(i => `<li>${i.name} x${i.quantity} — ${(i.price * i.quantity).toLocaleString('vi-VN')} đ</li>`).join('')}
+                  </ul>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t text-sm font-bold">
+                  <span>Tổng tiền:</span>
+                  <span class="text-orange-600 text-base">${Number(ord.totalAmount).toLocaleString('vi-VN')} đ</span>
+                </div>
               </div>
-              <p class="text-xs text-slate-600"><strong>Địa chỉ giao:</strong> ${ord.address}</p>
-              ${ord.note ? `<p class="text-xs text-slate-600"><strong>Ghi chú:</strong> ${ord.note}</p>` : ''}
-              <div>
-                <p class="text-xs font-semibold text-slate-700 mb-1">Món đặt:</p>
-                <ul class="text-xs space-y-1 pl-4 list-disc text-slate-600">
-                  ${(ord.items || []).map(i => `<li>${i.name} x${i.quantity} — ${(i.price * i.quantity).toLocaleString('vi-VN')} đ</li>`).join('')}
-                </ul>
-              </div>
-              <div class="flex justify-between items-center pt-2 border-t text-sm font-bold">
-                <span>Tổng tiền:</span>
-                <span class="text-orange-600">${Number(ord.totalAmount).toLocaleString('vi-VN')} đ</span>
-              </div>
-            </div>
-          `).join('');
+            `;
+          }).join('');
         }, err => console.warn(err));
       } catch (e) {
         console.warn(e);
       }
     }
+
+    // Admin cập nhật trạng thái đơn hàng liên tiếp
+    window.updateOrderStatus = async function(orderId, newStatus) {
+      try {
+        await updateDoc(doc(db, "orders", orderId), {
+          status: newStatus
+        });
+        alert(`Đã cập nhật trạng thái đơn hàng thành: "${newStatus}"`);
+      } catch (err) {
+        alert("Lỗi cập nhật trạng thái: " + err.message);
+      }
+    };
 
     // Modal Authentication
     window.toggleAuthModal = function() {
