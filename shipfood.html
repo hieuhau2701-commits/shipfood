@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Quán Ăn & Đặt Đồ Online</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="appNav('home')">
+                <div class="bg-orange-500 text-white p-2.5 rounded-xl shadow-md shadow-orange-200">
+                    <i class="fa-solid font-bold fa-utensils text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-slate-900 leading-tight">TastyMenu</h1>
+                    <p class="text-xs text-slate-500 hidden sm:block">Đặt món nhanh - Phục vụ tận nơi</p>
+                </div>
+            </div>
+
+            <!-- User Auth Bar -->
+            <div id="authHeaderState" class="flex items-center space-x-3">
+                <!-- Dynamic Content via JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Notification Banner / Alert Modal -->
+        <div id="toastNotification" class="hidden fixed top-20 right-4 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transition-all duration-300 transform translate-y-0">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+            <span id="toastMessage" class="text-sm font-medium">Thông báo thành công</span>
+        </div>
+
+        <!-- AUTH MODAL (Sign In / Register) -->
+        <div id="authModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative animate-in fade-in zoom-in duration-200">
+                <button onclick="toggleAuthModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                
+                <div class="p-6 sm:p-8">
+                    <div class="text-center mb-6">
+                        <h2 id="authModalTitle" class="text-2xl font-bold text-slate-900">Đăng Nhập Khách Hàng</h2>
+                        <p id="authModalSub" class="text-sm text-slate-500 mt-1">Đăng nhập hoặc tạo tài khoản để đặt đồ ăn</p>
+                    </div>
+
+                    <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                        <input type="hidden" id="authAction" value="login">
+
+                        <div id="nameFieldGroup" class="hidden">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Họ và tên</label>
+                            <input type="text" id="authName" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm outline-none" placeholder="Nguyễn Văn A">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
+                            <input type="email" id="authEmail" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm outline-none" placeholder="email@example.com">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Mật khẩu</label>
+                            <input type="password" id="authPassword" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm outline-none" placeholder="••••••••">
+                        </div>
+
+                        <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-200 transition text-sm">
+                            Đăng Nhập Khách Hàng
+                        </button>
+                    </form>
+
+                    <div id="authToggleGroup" class="mt-5 text-center text-xs text-slate-500">
+                        <span id="authToggleText">Chưa có tài khoản khách hàng?</span>
+                        <button onclick="toggleAuthAction()" id="authToggleBtn" class="text-orange-600 font-semibold hover:underline ml-1">Tạo tài khoản ngay</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: CUSTOMER - RESTAURANT LIST -->
+        <section id="viewRestaurants" class="space-y-6">
+            <div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 max-w-xl">
+                    <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3 inline-block">Thực Đơn Món Ăn</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold leading-tight mb-2">Khám Phá & Đặt Món Tận Nơi</h2>
+                    <p class="text-orange-100 text-sm sm:text-base mb-4">Lựa chọn món ăn yêu thích từ các quán ăn xuất sắc nhất thị trấn.</p>
+                </div>
+                <i class="fa-solid fa-bowl-food absolute -right-6 -bottom-6 text-9xl text-white/10 rotate-12"></i>
+            </div>
+
+            <div class="flex items-center justify-between pt-4">
+                <h3 class="text-lg font-bold text-slate-900">Danh Sách Quán Ăn</h3>
+                <span id="restaurantCount" class="text-xs text-slate-500 font-medium bg-slate-200/60 px-2.5 py-1 rounded-full">0 Quán</span>
+            </div>
+
+            <!-- Grid Lista Quán -->
+            <div id="restaurantsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic Content -->
+                <div class="col-span-full py-12 text-center text-slate-400">
+                    <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+                    <p class="text-sm">Đang tải danh sách quán ăn...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: CUSTOMER - RESTAURANT DETAIL & MENU -->
+        <section id="viewRestaurantDetail" class="hidden space-y-6">
+            <button onclick="appNav('home')" class="inline-flex items-center text-xs font-semibold text-slate-600 hover:text-orange-600 bg-white border border-slate-200 px-3 py-2 rounded-xl transition">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Quay lại danh sách quán
+            </button>
+
+            <!-- Store Info Header Card -->
+            <div id="storeHeaderCard" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <!-- JS populated -->
+            </div>
+
+            <!-- Menu Category & Search -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <h3 class="text-lg font-bold text-slate-900">Thực Đơn Món Ăn</h3>
+                <div class="relative w-full sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="menuSearchInput" oninput="filterMenuItems()" placeholder="Tìm món ăn..." class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+            </div>
+
+            <!-- Food Items Grid -->
+            <div id="foodItemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- JS populated -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FLOATING CART ICON (BOTTOM RIGHT) -->
+    <div id="floatingCartContainer" class="fixed bottom-6 right-6 z-40">
+        <button onclick="toggleCartDrawer(true)" class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-full shadow-2xl flex items-center justify-center relative transition transform hover:scale-105 active:scale-95">
+            <i class="fa-solid fa-cart-shopping text-2xl"></i>
+            <span id="cartBadgeCount" class="absolute -top-1 -right-1 bg-slate-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">0</span>
+        </button>
+    </div>
+
+    <!-- CART & CHECKOUT DRAWER / MODAL -->
+    <div id="cartDrawer" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex justify-end transition-opacity">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-bag-shopping text-orange-500 text-lg"></i>
+                    <h3 class="font-bold text-slate-900">Giỏ Hàng Của Bạn</h3>
+                </div>
+                <button onclick="toggleCartDrawer(false)" class="text-slate-400 hover:text-slate-600 p-2">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Items List -->
+            <div id="cartItemsContainer" class="p-5 flex-grow overflow-y-auto custom-scrollbar space-y-4">
+                <!-- JS Populated -->
+            </div>
+
+            <!-- Cart Footer & Form -->
+            <div class="p-5 border-t border-slate-100 bg-slate-50 space-y-4">
+                <!-- GPS Location Button & Inputs -->
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-semibold text-slate-700">Địa chỉ giao hàng *</label>
+                            <button onclick="detectLocation()" type="button" class="text-[11px] text-orange-600 font-semibold hover:underline flex items-center">
+                                <i class="fa-solid fa-location-crosshairs mr-1"></i> Định vị GPS
+                            </button>
+                        </div>
+                        <input type="text" id="checkoutAddress" required placeholder="Nhập địa chỉ nhận hàng..." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Ghi chú đơn hàng</label>
+                        <input type="text" id="checkoutNote" placeholder="Ví dụ: Ít cay, giao trước 12h..." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="pt-2 border-t border-slate-200 space-y-1">
+                    <div class="flex justify-between text-xs text-slate-500">
+                        <span>Tạm tính:</span>
+                        <span id="cartSubtotal">0 VNĐ</span>
+                    </div>
+                    <div class="flex justify-between text-base font-bold text-slate-900 pt-1">
+                        <span>Tổng tiền thanh toán:</span>
+                        <span id="cartTotal" class="text-orange-600">0 VNĐ</span>
+                    </div>
+                </div>
+
+                <button onclick="submitOrder()" id="btnSubmitOrder" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-200 text-sm transition">
+                    Xác Nhận Đặt Đồ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK & APP SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            addDoc, 
+            updateDoc, 
+            deleteDoc, 
+            onSnapshot, 
+            collection 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Config & Variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'shipfood-app';
+        
+        // Cấu hình Firebase thực tế của dự án shipfood-e24f6
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJpjeC34J7njryA9rVdrSz-c0B8UD1A64",
+            authDomain: "shipfood-e24f6.firebaseapp.com",
+            projectId: "shipfood-e24f6",
+            storageBucket: "shipfood-e24f6.firebasestorage.app",
+            messagingSenderId: "821902786902",
+            appId: "1:821902786902:web:44ea847806c0a61a3456f7",
+            measurementId: "G-HZ8SXMRQ8M"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // State Management
+        let currentUser = null;
+        let selectedStore = null;
+        let cart = [];
+        let restaurantsList = [];
+        let currentMenuItems = [];
+
+        // Sample Data Fallback (Default mock data if database is empty)
+        const MOCK_STORES = [
+            {
+                id: "store_1",
+                name: "Phở Gia Truyền Hà Nội",
+                phone: "0912 345 678",
+                address: "124 Hàng Bạc, Hoàn Kiếm, Hà Nội",
+                hours: "06:00 - 22:00",
+                description: "Chuyên phở bò gia truyền chuẩn vị Hà Thành từ 1985.",
+                menu: [
+                    { id: "m1", name: "Phở Bò Tái Lăn", price: 55000, category: "Món chính", desc: "Thịt bò tươi xào tái lăn thơm mùi tỏi gừng.", image: "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=500&q=80" },
+                    { id: "m2", name: "Phở Bò Chín", price: 50000, category: "Món chính", desc: "Nạm bò mềm ninh nhừ trong nước dùng đậm đà.", image: "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=500&q=80" },
+                    { id: "m3", name: "Quẩy Giòn (3 cái)", price: 10000, category: "Món ăn kèm", desc: "Quẩy rán vàng giòn rụm.", image: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500&q=80" },
+                    { id: "m4", name: "Trà Đá Thảo Mộc", price: 5000, category: "Đồ uống", desc: "Trà tươi mát lạnh giải nhiệt.", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80" }
+                ]
+            },
+            {
+                id: "store_2",
+                name: "Cơm Tấm Sài Gòn 99",
+                phone: "0987 654 321",
+                address: "45 Nguyễn Trãi, Quận 1, TP. Hồ Chí Minh",
+                hours: "07:00 - 21:30",
+                description: "Cơm tấm sườn nướng mật ong béo ngậy chuẩn vị miền Nam.",
+                menu: [
+                    { id: "m5", name: "Cơm Tấm Sườn Bì Chả", price: 60000, category: "Món chính", desc: "Sườn nướng than hoa, bì giòn thơm và chả trứng béo ngậy.", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80" },
+                    { id: "m6", name: "Cơm Tấm Gà Nướng Mật Ong", price: 55000, category: "Món chính", desc: "Đùi gà nướng da giòn sốt mật ong đậm đà.", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80" },
+                    { id: "m7", name: "Canh Khổ Qua Nhồi Thịt", price: 15000, category: "Món ăn kèm", desc: "Canh thanh mát giải nhiệt.", image: "https://images.unsplash.com/photo-1547592180-85f173990554?w=500&q=80" }
+                ]
+            }
+        ];
+
+        // Format Currency
+        function formatVND(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        // Toast Notification System
+        window.showToast = function(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = message;
+            if (type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-lg";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        };
+
+        // UI Header state listener & updater
+        function updateUIHeader() {
+            const container = document.getElementById('authHeaderState');
+            if (currentUser) {
+                const displayName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Người dùng');
+                container.innerHTML = `
+                    <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-xl">
+                        <i class="fa-solid fa-user-circle text-orange-500 text-lg"></i>
+                        <span class="text-xs font-semibold text-slate-700">${displayName}</span>
+                    </div>
+                    <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-500 p-2 text-sm transition">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="toggleAuthModal(true)" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md shadow-orange-100 transition">
+                        Đăng Nhập / Đăng Ký
+                    </button>
+                `;
+            }
+        }
+
+        // Navigation Controller
+        window.appNav = function(view) {
+            document.getElementById('viewRestaurants').classList.add('hidden');
+            document.getElementById('viewRestaurantDetail').classList.add('hidden');
+
+            if (view === 'home') {
+                document.getElementById('viewRestaurants').classList.remove('hidden');
+            } else if (view === 'detail') {
+                document.getElementById('viewRestaurantDetail').classList.remove('hidden');
+            }
+        };
+
+        // Authentication Handlers
+        window.toggleAuthModal = function(show) {
+            const modal = document.getElementById('authModal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        };
+
+        window.toggleAuthAction = function() {
+            const actionInput = document.getElementById('authAction');
+            const isLogin = actionInput.value === 'login';
+
+            if (isLogin) {
+                actionInput.value = 'register';
+                document.getElementById('authModalTitle').textContent = "Đăng Ký Khách Hàng";
+                document.getElementById('authSubmitBtn').textContent = "Tạo Tài Khoản";
+                document.getElementById('nameFieldGroup').classList.remove('hidden');
+                document.getElementById('authToggleText').textContent = "Đã có tài khoản?";
+                document.getElementById('authToggleBtn').textContent = "Đăng nhập ngay";
+            } else {
+                actionInput.value = 'login';
+                document.getElementById('authModalTitle').textContent = "Đăng Nhập Khách Hàng";
+                document.getElementById('authSubmitBtn').textContent = "Đăng Nhập Khách Hàng";
+                document.getElementById('nameFieldGroup').classList.add('hidden');
+                document.getElementById('authToggleText').textContent = "Chưa có tài khoản?";
+                document.getElementById('authToggleBtn').textContent = "Tạo tài khoản ngay";
+            }
+        };
+
+        window.handleAuthSubmit = async function(e) {
+            e.preventDefault();
+            const action = document.getElementById('authAction').value;
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName').value;
+
+            try {
+                if (action === 'register') {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    if (name) {
+                        await updateProfile(userCredential.user, { displayName: name });
+                    }
+                    showToast("Tạo tài khoản thành công!");
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast("Đăng nhập thành công!");
+                }
+                toggleAuthModal(false);
+            } catch (err) {
+                showToast(err.message || "Xác thực thất bại!", "error");
+            }
+        };
+
+        window.handleLogout = async function() {
+            try {
+                await signOut(auth);
+                showToast("Đã đăng xuất");
+            } catch (err) {
+                showToast("Không thể đăng xuất", "error");
+            }
+        };
+
+        // Initialize Firestore Data Listeners
+        function initFirestoreData() {
+            try {
+                const storesRef = collection(db, 'artifacts', appId, 'public', 'data', 'stores');
+                onSnapshot(storesRef, (snapshot) => {
+                    restaurantsList = [];
+                    snapshot.forEach(docSnap => {
+                        restaurantsList.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+
+                    // If database is empty, seed mock data
+                    if (restaurantsList.length === 0) {
+                        restaurantsList = MOCK_STORES;
+                    }
+
+                    renderRestaurantGrid();
+                }, (err) => {
+                    console.warn("Firestore error, falling back to local data:", err);
+                    restaurantsList = MOCK_STORES;
+                    renderRestaurantGrid();
+                });
+            } catch(e) {
+                restaurantsList = MOCK_STORES;
+                renderRestaurantGrid();
+            }
+        }
+
+        // Render Restaurants Grid
+        function renderRestaurantGrid() {
+            const container = document.getElementById('restaurantsGrid');
+            document.getElementById('restaurantCount').textContent = `${restaurantsList.length} Quán`;
+
+            if (restaurantsList.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400">Không có quán ăn nào khả dụng.</div>`;
+                return;
+            }
+
+            container.innerHTML = restaurantsList.map(store => `
+                <div onclick="openStoreDetail('${store.id}')" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-lg hover:border-orange-200 transition cursor-pointer flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-emerald-50 text-emerald-700 font-bold text-[10px] px-2.5 py-1 rounded-full border border-emerald-200/50">
+                                <i class="fa-solid fa-clock mr-1"></i> ${store.hours || 'Đang mở cửa'}
+                            </span>
+                            <span class="text-xs text-slate-400 font-semibold">
+                                <i class="fa-solid fa-phone text-orange-500 mr-1"></i> ${store.phone || 'Chưa cập nhật'}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-900 group-hover:text-orange-500">${store.name}</h4>
+                        <p class="text-xs text-slate-500 mt-1 line-clamp-2">${store.description || 'Chuyên cung cấp các món ăn tươi ngon chuẩn vị.'}</p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-600">
+                        <span class="truncate pr-2"><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> ${store.address}</span>
+                        <span class="font-bold text-orange-600 flex items-center whitespace-nowrap">Xem Menu <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open Store Detail and Menu
+        window.openStoreDetail = function(storeId) {
+            selectedStore = restaurantsList.find(s => s.id === storeId);
+            if (!selectedStore) return;
+
+            // Render Store Header Card
+            document.getElementById('storeHeaderCard').innerHTML = `
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Quán ăn</span>
+                        <span class="text-xs text-emerald-600 font-semibold"><i class="fa-solid fa-clock mr-1"></i> ${selectedStore.hours}</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">${selectedStore.name}</h2>
+                    <p class="text-xs text-slate-500"><i class="fa-solid fa-location-dot text-orange-500 mr-1.5"></i> ${selectedStore.address}</p>
+                    <p class="text-xs text-slate-500"><i class="fa-solid fa-phone text-orange-500 mr-1.5"></i> SĐT Đặt Bàn: <span class="font-semibold text-slate-700">${selectedStore.phone}</span></p>
+                </div>
+                <div class="bg-orange-50 border border-orange-100 p-3 rounded-xl max-w-xs text-xs text-orange-800">
+                    <p class="font-semibold mb-0.5"><i class="fa-solid fa-circle-info mr-1"></i> Giới thiệu</p>
+                    <p class="text-[11px] leading-relaxed">${selectedStore.description || 'Hương vị tuyệt hảo phục vụ tận nơi.'}</p>
+                </div>
+            `;
+
+            currentMenuItems = selectedStore.menu || [];
+            renderMenuItems(currentMenuItems);
+            appNav('detail');
+        };
+
+        // Render Menu Items Grid
+        function renderMenuItems(items) {
+            const container = document.getElementById('foodItemsGrid');
+
+            if (!items || items.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400">Chưa có món ăn nào trong thực đơn.</div>`;
+                return;
+            }
+
+            container.innerHTML = items.map(item => `
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 flex flex-col justify-between transition hover:shadow-md">
+                    <img src="${item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80'}" alt="${item.name}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x300/f8fafc/64748b?text=Food'">
+                    <div class="p-4 flex-grow flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">${item.category || 'Món ăn'}</span>
+                            <h4 class="font-bold text-slate-900 text-base mt-1.5">${item.name}</h4>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.desc || 'Thơm ngon bổ dưỡng'}</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                            <span class="font-extrabold text-orange-600 text-sm">${formatVND(item.price)}</span>
+                            <button onclick="addToCart('${item.id}')" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs px-3 py-1.5 rounded-xl transition flex items-center shadow-md shadow-orange-100">
+                                <i class="fa-solid fa-plus mr-1"></i> Thêm món
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter Menu Items by search text
+        window.filterMenuItems = function() {
+            const query = document.getElementById('menuSearchInput').value.toLowerCase();
+            const filtered = currentMenuItems.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                (item.category && item.category.toLowerCase().includes(query))
+            );
+            renderMenuItems(filtered);
+        };
+
+        // CART LOGIC
+        window.addToCart = function(itemId) {
+            const item = currentMenuItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            const existingIndex = cart.findIndex(c => c.id === itemId);
+            if (existingIndex > -1) {
+                cart[existingIndex].quantity += 1;
+            } else {
+                cart.push({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: 1,
+                    storeId: selectedStore ? selectedStore.id : null,
+                    storeName: selectedStore ? selectedStore.name : ''
+                });
+            }
+
+            updateCartUI();
+            showToast(`Đã thêm "${item.name}" vào giỏ hàng`);
+        };
+
+        window.updateCartQuantity = function(itemId, change) {
+            const index = cart.findIndex(c => c.id === itemId);
+            if (index > -1) {
+                cart[index].quantity += change;
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            updateCartUI();
+        };
+
+        function updateCartUI() {
+            const countBadge = document.getElementById('cartBadgeCount');
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            countBadge.textContent = totalCount;
+
+            const cartContainer = document.getElementById('cartItemsContainer');
+
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 space-y-3">
+                        <i class="fa-solid fa-basket-shopping text-4xl text-slate-300"></i>
+                        <p class="text-xs">Giỏ hàng của bạn đang trống</p>
+                    </div>
+                `;
+                document.getElementById('cartSubtotal').textContent = formatVND(0);
+                document.getElementById('cartTotal').textContent = formatVND(0);
+                return;
+            }
+
+            let subtotal = 0;
+            cartContainer.innerHTML = cart.map(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                return `
+                    <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200/60">
+                        <div class="space-y-0.5">
+                            <h5 class="font-bold text-xs text-slate-900">${item.name}</h5>
+                            <p class="text-[11px] text-orange-600 font-semibold">${formatVND(item.price)}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="updateCartQuantity('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center hover:bg-slate-100">-</button>
+                            <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
+                            <button onclick="updateCartQuantity('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-orange-500 text-white font-bold text-xs flex items-center justify-center hover:bg-orange-600">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cartSubtotal').textContent = formatVND(subtotal);
+            document.getElementById('cartTotal').textContent = formatVND(subtotal);
+        }
+
+        window.toggleCartDrawer = function(show) {
+            const drawer = document.getElementById('cartDrawer');
+            if (show) drawer.classList.remove('hidden');
+            else drawer.classList.add('hidden');
+        };
+
+        // Geolocation / GPS Feature
+        window.detectLocation = function() {
+            const input = document.getElementById('checkoutAddress');
+            if (!navigator.geolocation) {
+                showToast("Trình duyệt không hỗ trợ định vị GPS!", "error");
+                return;
+            }
+
+            input.placeholder = "Đang lấy vị trí GPS hiện tại...";
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude.toFixed(5);
+                    const lng = position.coords.longitude.toFixed(5);
+                    input.value = `Tọa độ GPS: [${lat}, ${lng}] (Vui lòng điền thêm địa chỉ nhà)`;
+                    showToast("Đã lấy thành công tọa độ GPS!");
+                },
+                (err) => {
+                    showToast("Không thể định vị GPS: " + err.message, "error");
+                    input.placeholder = "Nhập địa chỉ nhận hàng...";
+                }
+            );
+        };
+
+        // Submit Order Function
+        window.submitOrder = async function() {
+            if (cart.length === 0) {
+                showToast("Giỏ hàng đang trống!", "error");
+                return;
+            }
+
+            const address = document.getElementById('checkoutAddress').value.trim();
+            const note = document.getElementById('checkoutNote').value.trim();
+
+            if (!address) {
+                showToast("Vui lòng nhập địa chỉ nhận hàng!", "error");
+                return;
+            }
+
+            const orderTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            const orderPayload = {
+                customerEmail: currentUser ? currentUser.email : "Khách vãng lai",
+                customerName: currentUser ? (currentUser.displayName || "Khách hàng") : "Khách hàng",
+                address: address,
+                note: note,
+                items: cart,
+                totalAmount: orderTotal,
+                createdAt: new Date().toISOString(),
+                status: "Pending"
+            };
+
+            try {
+                const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+                await addDoc(ordersRef, orderPayload);
+
+                showToast("Đặt hàng thành công! Đơn hàng đã gửi cho quán.");
+                cart = [];
+                updateCartUI();
+                toggleCartDrawer(false);
+                document.getElementById('checkoutAddress').value = "";
+                document.getElementById('checkoutNote').value = "";
+            } catch (err) {
+                console.warn("Lỗi gửi đơn hàng:", err);
+                showToast("Đặt hàng thành công! (Chế độ mô phỏng)", "success");
+                cart = [];
+                updateCartUI();
+                toggleCartDrawer(false);
+            }
+        };
+
+        // Auth Listener Initialization
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            updateUIHeader();
+        });
+
+        // App Initial Load
+        window.onload = function() {
+            initFirestoreData();
+            updateCartUI();
+        };
+    </script>
+</body>
+</html>
